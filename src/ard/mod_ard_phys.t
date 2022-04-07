@@ -1,4 +1,4 @@
-!> Reaction-diffusion module (physics routines)
+!> Advection-reaction-diffusion module (physics routines)
 !>
 !> Multiple reaction-diffusion systems are included: the Gray-Scott model, the
 !> Schnakenberg model, the Brusselator model, the diffusive logistic equation,
@@ -19,6 +19,9 @@ module mod_ard_phys
   integer, protected, public :: u_ = 1
   integer, protected, public :: v_ = 2 !< For 2 or more equations
   integer, protected, public :: w_ = 3 !< For 3 or more equations
+
+  !> Whether advection is linear (a) or nonlinear (au^2/2)
+  logical, public, protected :: advection_linear = .true.
 
   !> Whether particles module is added
   logical, public, protected :: ard_particles = .false.
@@ -45,6 +48,9 @@ module mod_ard_phys
   double precision, public, protected :: D2 = 1.0d0
   !> Diffusion coefficient for third species (w) (if applicable)
   double precision, public, protected :: D3 = 1.0d0
+
+  !> Parameter for advection (a)
+  double precision, public, protected :: adv_a = 1.0d0
 
   !> Parameter for Schnakenberg model
   double precision, public, protected :: sb_alpha = 0.1305d0
@@ -631,3 +637,82 @@ contains
   end subroutine ard_implicit_update
 
 end module mod_ard_phys
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+!> Module containing the physics routines for scalar nonlinear equation
+module mod_nonlinear_phys
+
+  implicit none
+  private
+
+  !> index of the single scalar unknown
+  integer, protected, public :: rho_       = 1
+
+  !> switch between burgers (i.e. rho**2) 
+  !> or nonconvex flux (i.e. rho**3)
+  integer, protected, public :: nonlinear_flux_type = 1
+
+  !> whether the KdV source term is added
+  logical, protected, public :: kdv_source_term = .false.
+
+  !> Whether particles module is added
+  logical, public, protected              :: nonlinear_particles = .false.
+
+  ! Public methods
+  public :: nonlinear_phys_init
+  public :: nonlinear_get_v
+
+contains
+
+  !> Read this module's parameters from a file
+  subroutine nonlinear_params_read(files)
+    use mod_global_parameters, only: unitpar
+    character(len=*), intent(in) :: files(:)
+    integer                      :: n
+
+    namelist /nonlinear_list/ nonlinear_flux_type, kdv_source_term, nonlinear_particles
+
+    do n = 1, size(files)
+       open(unitpar, file=trim(files(n)), status='old')
+       read(unitpar, nonlinear_list, end=111)
+111    close(unitpar)
+    end do
+
+  end subroutine nonlinear_params_read
+
+  !> Write this module's parameters to a snapshot
+  subroutine nonlinear_write_info(fh)
+  ! for nonlinear scalar equation, nothing to write
+  ! note: this is info only stored at end of dat files, 
+  !       is never read/used for restarts, only expects
+  !       an integer (number of parameters) and 
+  !       corresponding double values and character names
+  !       and is meant for use in the python tools
+    use mod_global_parameters
