@@ -100,6 +100,7 @@ module mod_ard_phys
 
   ! Public methods
   public :: ard_phys_init
+  public :: ard_get_v
 
 contains
 
@@ -108,10 +109,10 @@ contains
     character(len=*), intent(in) :: files(:)
     integer                      :: n
 
-    namelist /ard_list/ D1, D2, D3, sb_alpha, sb_beta, sb_kappa, gs_F, gs_k, &
+    namelist /ard_list/ D1, D2, D3, adv_a, sb_alpha, sb_beta, sb_kappa, gs_F, gs_k, &
         br_A, br_B, br_C, br_D, lg_lambda, bzfn_epsilon, bzfn_delta, bzfn_lambda, &
         bzfn_mu, lor_r, lor_sigma, lor_b, &
-        equation_name, ard_particles, ard_source_split, dtreacpar
+        equation_name, advection_linear, ard_particles, ard_source_split, dtreacpar
 
     do n = 1, size(files)
        open(unitpar, file=trim(files(n)), status='old')
@@ -150,7 +151,7 @@ contains
 
   end subroutine ard_params_read
 
-  !> Write this module's parameters to a snapshot
+  !> Write this modules parameters to a snapshot
   subroutine ard_write_info(fh)
     use mod_global_parameters
     integer, intent(in)                 :: fh
@@ -187,18 +188,17 @@ contains
     ! set number of variables which need update ghostcells
     nwgc=nwflux
 
-    ! Disable flux conservation near AMR boundaries, since we have no fluxes
-    fix_conserve_global = .false.
-
-    phys_get_cmax     => ard_get_cmax
-    phys_get_cbounds  => ard_get_cbounds
-    phys_get_flux     => ard_get_flux
-    phys_to_conserved => ard_to_conserved
-    phys_to_primitive => ard_to_primitive
-    phys_add_source   => ard_add_source
-    phys_get_dt       => ard_get_dt
-    phys_write_info   => ard_write_info
-    phys_check_params => ard_check_params
+    phys_get_cmax          => ard_get_cmax
+    phys_get_cbounds       => ard_get_cbounds
+    phys_get_flux          => ard_get_flux
+    phys_to_conserved      => ard_to_conserved
+    phys_to_primitive      => ard_to_primitive
+    phys_add_source_geom   => ard_add_source
+    phys_add_source        => ard_add_source
+    phys_get_v_idim        => ard_get_v
+    phys_get_dt            => ard_get_dt
+    phys_write_info        => ard_write_info
+    phys_check_params      => ard_check_params
     phys_implicit_update   => ard_implicit_update
     phys_evaluate_implicit => ard_evaluate_implicit
 
@@ -214,10 +214,11 @@ contains
     use mod_global_parameters
     integer :: n, i, iw, species_list(number_of_species)
 
-    if (any(flux_method /= fs_source)) then
-       ! there are no fluxes, only source terms in reaction-diffusion
-       call mpistop("mod_ard requires flux_scheme = source")
-    end if
+    ! Not sure what to do with this, so left it temporarily but commented out
+    ! if (any(flux_method /= fs_source)) then
+    !    ! there are no fluxes, only source terms in reaction-diffusion
+    !    call mpistop("mod_ard requires flux_scheme = source")
+    ! end if
 
     if (use_imex_scheme) then
        use_multigrid = .true.
@@ -284,13 +285,30 @@ contains
     ! Do nothing (primitive and conservative are equal for ard module)
   end subroutine ard_to_primitive
 
-  subroutine ard_get_cmax(w, x, ixI^L, ixO^L, idim, cmax)
+  subroutine ard_get_v(w, x, ixI^L, ixO^L, idim, v)
+    use mod_global_parameters
+    integer, intent(in)           :: ixI^L, ixO^L, idim
+    double precision, intent(in)  :: w(ixI^S, nw), x(ixI^S, 1:^ND)
+    double precision, intent(out) :: v(ixI^S)
+
+    if(advection_linear) then
+       v(ixO^S)=adv_a
+    else
+       v(ixO^S)=adv_a*w(ixO^S,rho_)
+    end if
+
+  end subroutine ard_get_v
+
+ subroutine ard_get_cmax(w, x, ixI^L, ixO^L, idim, cmax)
     use mod_global_parameters
     integer, intent(in)                       :: ixI^L, ixO^L, idim
     double precision, intent(in)              :: w(ixI^S, nw), x(ixI^S, 1:^ND)
     double precision, intent(inout)           :: cmax(ixI^S)
 
-    cmax(ixO^S) = 0.0d0
+    call ard_get_v(w, x, ixI^L, ixO^L, idim, cmax)
+
+    cmax(ixO^S) = abs(cmax(ixO^S)) 
+
   end subroutine ard_get_cmax
 
   subroutine ard_get_cbounds(wLC, wRC, wLp, wRp, x, ixI^L, ixO^L, idim,Hspeed, cmax, cmin)
@@ -303,11 +321,18 @@ contains
     double precision, intent(inout) :: cmax(ixI^S)
     double precision, intent(inout), optional :: cmin(ixI^S)
 
+    double precision :: wmean(ixI^S,nw)
+
+    ! since get_v can depend on w, the first argument should be some average over the
+    ! left and right state
+    wmean(ixO^S,1:nwflux)=0.5d0*(wLC(ixO^S,1:nwflux)+wRC(ixO^S,1:nwflux))
+    call ard_get_v(wmean, x, ixI^L, ixO^L, idim, cmax)
+
     if (present(cmin)) then
-       cmin(ixO^S) = 0.0d0
-       cmax(ixO^S) = 0.0d0
+       cmin(ixO^S) = min(cmax(ixO^S), zero)
+       cmax(ixO^S) = max(cmax(ixO^S), zero)
     else
-       cmax(ixO^S) = 0.0d0
+       cmax(ixO^S) = maxval(abs(cmax(ixO^S)))
     end if
 
   end subroutine ard_get_cbounds
@@ -377,8 +402,26 @@ contains
     double precision, intent(in)    :: x(ixI^S, 1:^ND)
     double precision, intent(out)   :: f(ixI^S, nwflux)
 
-    f(ixO^S, :) = 0.0d0
+    if(advection_linear) then
+       f(ixO^S, :) = adv_a*w(ixO^S,rho_)
+    else
+       f(ixO^S, :) = half*adv_a*w(ixO^S,rho_)**2
+    end if
+
   end subroutine ard_get_flux
+
+  subroutine ard_add_source_geom(qdt, ixI^L, ixO^L, wCT, w, x)
+
+    ! Add geometrical source terms to w
+    ! There are no geometrical source terms 
+
+    use mod_global_parameters
+
+    integer, intent(in) :: ixI^L, ixO^L
+    double precision, intent(in) :: qdt, x(ixI^S, 1:^ND)
+    double precision, intent(inout) :: wCT(ixI^S, 1:nw), w(ixI^S, 1:nw)
+
+  end subroutine ard_add_source_geom
 
   ! w[iw]= w[iw]+qdt*S[wCT, qtC, x] where S is the source based on wCT within ixO
   subroutine ard_add_source(qdt,ixI^L,ixO^L,wCT,w,x,qsourcesplit,active)
@@ -637,82 +680,3 @@ contains
   end subroutine ard_implicit_update
 
 end module mod_ard_phys
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-!> Module containing the physics routines for scalar nonlinear equation
-module mod_nonlinear_phys
-
-  implicit none
-  private
-
-  !> index of the single scalar unknown
-  integer, protected, public :: rho_       = 1
-
-  !> switch between burgers (i.e. rho**2) 
-  !> or nonconvex flux (i.e. rho**3)
-  integer, protected, public :: nonlinear_flux_type = 1
-
-  !> whether the KdV source term is added
-  logical, protected, public :: kdv_source_term = .false.
-
-  !> Whether particles module is added
-  logical, public, protected              :: nonlinear_particles = .false.
-
-  ! Public methods
-  public :: nonlinear_phys_init
-  public :: nonlinear_get_v
-
-contains
-
-  !> Read this module's parameters from a file
-  subroutine nonlinear_params_read(files)
-    use mod_global_parameters, only: unitpar
-    character(len=*), intent(in) :: files(:)
-    integer                      :: n
-
-    namelist /nonlinear_list/ nonlinear_flux_type, kdv_source_term, nonlinear_particles
-
-    do n = 1, size(files)
-       open(unitpar, file=trim(files(n)), status='old')
-       read(unitpar, nonlinear_list, end=111)
-111    close(unitpar)
-    end do
-
-  end subroutine nonlinear_params_read
-
-  !> Write this module's parameters to a snapshot
-  subroutine nonlinear_write_info(fh)
-  ! for nonlinear scalar equation, nothing to write
-  ! note: this is info only stored at end of dat files, 
-  !       is never read/used for restarts, only expects
-  !       an integer (number of parameters) and 
-  !       corresponding double values and character names
-  !       and is meant for use in the python tools
-    use mod_global_parameters
