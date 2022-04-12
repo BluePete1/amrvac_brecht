@@ -49,8 +49,12 @@ module mod_ard_phys
   !> Diffusion coefficient for third species (w) (if applicable)
   double precision, public, protected :: D3 = 1.0d0
 
-  !> Parameter for advection (a)
-  double precision, public, protected :: adv_a = 1.0d0
+  !> Advection coefficient for first species (u)
+  double precision, public, protected :: A1 = 1.0d0
+  !> Advection coefficient for second species (v) (if applicable)
+  double precision, public, protected :: A2 = 1.0d0
+  !> Advection coefficient for third species (w) (if applicable)
+  double precision, public, protected :: A3 = 1.0d0
 
   !> Parameter for Schnakenberg model
   double precision, public, protected :: sb_alpha = 0.1305d0
@@ -109,7 +113,7 @@ contains
     character(len=*), intent(in) :: files(:)
     integer                      :: n
 
-    namelist /ard_list/ D1, D2, D3, adv_a, sb_alpha, sb_beta, sb_kappa, gs_F, gs_k, &
+    namelist /ard_list/ D1, D2, D3, A1, A2, A3, sb_alpha, sb_beta, sb_kappa, gs_F, gs_k, &
         br_A, br_B, br_C, br_D, lg_lambda, bzfn_epsilon, bzfn_delta, bzfn_lambda, &
         bzfn_mu, lor_r, lor_sigma, lor_b, &
         equation_name, advection_linear, ard_particles, ard_source_split, dtreacpar
