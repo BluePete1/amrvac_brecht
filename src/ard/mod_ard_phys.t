@@ -518,7 +518,7 @@ contains
 
   end subroutine ard_add_source
 
-  !> Compute the Laplacian using a standaard second oarder scheme. For now this
+  !> Compute the Laplacian using a standard second order scheme. For now this
   !> method only works in slab geometries. Requires one ghost cell only.
   subroutine ard_laplacian(ixI^L,ixO^L,var,lpl)
     use mod_global_parameters
