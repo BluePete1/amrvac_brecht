@@ -20,7 +20,7 @@ module mod_ard_phys
   integer, protected, public :: v_ = 2 !< For 2 or more equations
   integer, protected, public :: w_ = 3 !< For 3 or more equations
 
-  !> Whether advection is linear (a) or nonlinear (au^2/2)
+  !> Whether advection is linear (A) or nonlinear (Au^2/2)
   logical, public, protected :: advection_linear = .true.
 
   !> Whether particles module is added
@@ -49,12 +49,12 @@ module mod_ard_phys
   !> Diffusion coefficient for third species (w) (if applicable)
   double precision, public, protected :: D3 = 1.0d0
 
-  !> Advection coefficient for first species (u)
-  double precision, public, protected :: A1 = 1.0d0
-  !> Advection coefficient for second species (v) (if applicable)
-  double precision, public, protected :: A2 = 1.0d0
-  !> Advection coefficient for third species (w) (if applicable)
-  double precision, public, protected :: A3 = 1.0d0
+  !> Advection coefficients for first species (u)
+  double precision, public, protected :: A1(^ND) = 1.0d0
+  !> Advection coefficients for second species (v)
+  double precision, public, protected :: A2(^ND) = 1.0d0
+  !> Advection coefficients for third species (w)
+  double precision, public, protected :: A3(^ND) = 1.0d0
 
   !> Parameter for Schnakenberg model
   double precision, public, protected :: sb_alpha = 0.1305d0
@@ -104,7 +104,7 @@ module mod_ard_phys
 
   ! Public methods
   public :: ard_phys_init
-  public :: ard_get_v
+  !public :: ard_get_v
 
 contains
 
@@ -113,9 +113,9 @@ contains
     character(len=*), intent(in) :: files(:)
     integer                      :: n
 
-    namelist /ard_list/ D1, D2, D3, A1, A2, A3, sb_alpha, sb_beta, sb_kappa, gs_F, gs_k, &
-        br_A, br_B, br_C, br_D, lg_lambda, bzfn_epsilon, bzfn_delta, bzfn_lambda, &
-        bzfn_mu, lor_r, lor_sigma, lor_b, &
+    namelist /ard_list/ D1, D2, D3, A1, A2, A3, sb_alpha, sb_beta, sb_kappa, &
+        gs_F, gs_k, br_A, br_B, br_C, br_D, lg_lambda, bzfn_epsilon, bzfn_delta, &
+        bzfn_lambda, bzfn_mu, lor_r, lor_sigma, lor_b, &
         equation_name, advection_linear, ard_particles, ard_source_split, dtreacpar
 
     do n = 1, size(files)
@@ -192,14 +192,22 @@ contains
     ! set number of variables which need update ghostcells
     nwgc=nwflux
 
+    ! Check whether custom flux types have been defined
+    if (.not. allocated(flux_type)) then
+       allocate(flux_type(ndir, nw))
+       flux_type = flux_default
+    else if (any(shape(flux_type) /= [ndir, nw])) then
+       call mpistop("phys_check error: flux_type has wrong shape")
+    end if
+
     phys_get_cmax          => ard_get_cmax
     phys_get_cbounds       => ard_get_cbounds
     phys_get_flux          => ard_get_flux
     phys_to_conserved      => ard_to_conserved
     phys_to_primitive      => ard_to_primitive
-    phys_add_source_geom   => ard_add_source
+    phys_add_source_geom   => ard_add_source_geom
     phys_add_source        => ard_add_source
-    phys_get_v_idim        => ard_get_v
+    !phys_get_v_idim        => ard_get_v
     phys_get_dt            => ard_get_dt
     phys_write_info        => ard_write_info
     phys_check_params      => ard_check_params
@@ -289,19 +297,19 @@ contains
     ! Do nothing (primitive and conservative are equal for ard module)
   end subroutine ard_to_primitive
 
-  subroutine ard_get_v(w, x, ixI^L, ixO^L, idim, v)
-    use mod_global_parameters
-    integer, intent(in)           :: ixI^L, ixO^L, idim
-    double precision, intent(in)  :: w(ixI^S, nw), x(ixI^S, 1:^ND)
-    double precision, intent(out) :: v(ixI^S)
+  !subroutine ard_get_v(w, x, ixI^L, ixO^L, idim, v)
+  !  use mod_global_parameters
+  !  integer, intent(in)           :: ixI^L, ixO^L, idim
+  !  double precision, intent(in)  :: w(ixI^S, nw), x(ixI^S, 1:^ND)
+  !  double precision, intent(out) :: v(ixI^S)
 
-    if(advection_linear) then
-       v(ixO^S)=adv_a
-    else
-       v(ixO^S)=adv_a*w(ixO^S,rho_)
-    end if
+  !  if(advection_linear) then
+  !     v(ixO^S)=A1
+  !  else
+  !     v(ixO^S)=A1*w(ixO^S,u_)
+  !  end if
 
-  end subroutine ard_get_v
+  !end subroutine ard_get_v
 
  subroutine ard_get_cmax(w, x, ixI^L, ixO^L, idim, cmax)
     use mod_global_parameters
@@ -309,9 +317,15 @@ contains
     double precision, intent(in)              :: w(ixI^S, nw), x(ixI^S, 1:^ND)
     double precision, intent(inout)           :: cmax(ixI^S)
 
-    call ard_get_v(w, x, ixI^L, ixO^L, idim, cmax)
+    !call ard_get_v(w, x, ixI^L, ixO^L, idim, cmax)
 
-    cmax(ixO^S) = abs(cmax(ixO^S)) 
+    !cmax(ixO^S) = abs(cmax(ixO^S)) 
+
+    if(advection_linear) then
+       cmax(ixO^S)=max(abs(A1(idim)), abs(A2(idim)), abs(A3(idim)))
+    else
+       cmax(ixO^S)=max(abs(A1(idim)*w(ixO^S,u_)), abs(A2(idim)*w(ixO^S,u_)), abs(A3(idim)*w(ixO^S,u_)))
+    end if
 
   end subroutine ard_get_cmax
 
@@ -407,9 +421,21 @@ contains
     double precision, intent(out)   :: f(ixI^S, nwflux)
 
     if(advection_linear) then
-       f(ixO^S, :) = adv_a*w(ixO^S,rho_)
+       f(ixO^S, u_) = A1(idim)*w(ixO^S,u_)
+       if (number_of_species >=2) then
+          f(ixO^S, v_) = A2(idim)*w(ixO^S,v_)
+       end if
+       if (number_of_species >=3) then
+          f(ixO^S, w_) = A3(idim)*w(ixO^S,w_)
+       end if
     else
-       f(ixO^S, :) = half*adv_a*w(ixO^S,rho_)**2
+       f(ixO^S, u_) = half*A1(idim)*w(ixO^S,u_)**2
+       if (number_of_species >=2) then
+          f(ixO^S, v_) = half*A2(idim)*w(ixO^S,v_)**2
+       end if
+       if (number_of_species >=3) then
+          f(ixO^S, w_) = half*A3(idim)*w(ixO^S,w_)**2
+       end if
     end if
 
   end subroutine ard_get_flux
