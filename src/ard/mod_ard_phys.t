@@ -54,11 +54,11 @@ module mod_ard_phys
   double precision, public, protected :: D3 = 1.0d0
 
   !> Advection coefficients for first species (u)
-  double precision, public, protected :: A1(^ND) = 1.0d0
+  double precision, public, protected :: A1(^ND) = 0.0d0
   !> Advection coefficients for second species (v)
-  double precision, public, protected :: A2(^ND) = 1.0d0
+  double precision, public, protected :: A2(^ND) = 0.0d0
   !> Advection coefficients for third species (w)
-  double precision, public, protected :: A3(^ND) = 1.0d0
+  double precision, public, protected :: A3(^ND) = 0.0d0
 
   !> Parameter for Schnakenberg model
   double precision, public, protected :: sb_alpha = 0.1305d0
@@ -328,7 +328,13 @@ contains
     if(advection_linear) then
        cmax(ixO^S)=max(abs(A1(idim)), abs(A2(idim)), abs(A3(idim)))
     else
-       cmax(ixO^S)=max(abs(A1(idim)*w(ixO^S,u_)), abs(A2(idim)*w(ixO^S,u_)), abs(A3(idim)*w(ixO^S,u_)))
+       cmax(ixO^S)=abs(A1(idim)*w(ixO^S,u_))
+       if (number_of_species >= 2) then
+          cmax(ixO^S)=max(cmax(ixO^S), abs(A2(idim)*w(ixO^S,v_)))
+       end if
+       if (number_of_species >= 3) then
+          cmax(ixO^S)=max(cmax(ixO^S), abs(A3(idim)*w(ixO^S,w_)))
+       end if
     end if
 
   end subroutine ard_get_cmax
@@ -352,17 +358,39 @@ contains
 
     if (present(cmin)) then
        if(advection_linear) then
-          cmin(ixO^S)=min(A1(idim), A2(idim), A3(idim), zero)
-          cmax(ixO^S)=max(A1(idim), A2(idim), A3(idim), zero)
+          cmin(ixO^S)=min(A1(idim), zero)
+          cmax(ixO^S)=max(A1(idim), zero)
+          if (number_of_species >= 2) then
+             cmin(ixO^S)=min(cmin(ixO^S), A2(idim))
+             cmax(ixO^S)=max(cmax(ixO^S), A2(idim))
+          end if
+          if (number_of_species >= 3) then
+             cmin(ixO^S)=min(cmin(ixO^S), A3(idim))
+             cmax(ixO^S)=max(cmax(ixO^S), A3(idim))
+          end if
        else
-          cmin(ixO^S)=min(A1(idim)*minval(wmean(ixO^S,u_)), A2(idim)*minval(wmean(ixO^S,u_)), A3(idim)*minval(wmean(ixO^S,u_)), zero)
-          cmax(ixO^S)=max(A1(idim)*maxval(wmean(ixO^S,u_)), A2(idim)*maxval(wmean(ixO^S,u_)), A3(idim)*maxval(wmean(ixO^S,u_)), zero)
+          cmin(ixO^S)=min(A1(idim)*minval(wmean(ixO^S,u_)), zero)
+          cmax(ixO^S)=max(A1(idim)*maxval(wmean(ixO^S,u_)), zero)
+          if (number_of_species >= 2) then
+             cmin(ixO^S)=min(cmin(ixO^S), A2(idim)*minval(wmean(ixO^S,v_)))
+             cmax(ixO^S)=max(cmax(ixO^S), A2(idim)*maxval(wmean(ixO^S,v_)))
+          end if
+          if (number_of_species >= 3) then
+             cmin(ixO^S)=min(cmin(ixO^S), A3(idim)*minval(wmean(ixO^S,w_)))
+             cmax(ixO^S)=max(cmax(ixO^S), A3(idim)*maxval(wmean(ixO^S,w_)))
+          end if
        end if
     else
        if(advection_linear) then
           cmax(ixO^S)=max(abs(A1(idim)), abs(A2(idim)), abs(A3(idim)))
        else
-          cmax(ixO^S)=max(abs(A1(idim)*wmean(ixO^S,u_)), abs(A2(idim)*wmean(ixO^S,u_)), abs(A3(idim)*wmean(ixO^S,u_)))
+          cmax(ixO^S)=abs(A1(idim)*wmean(ixO^S,u_))
+          if (number_of_species >=2) then
+             cmax(ixO^S)=max(cmax(ixO^S), abs(A2(idim)*wmean(ixO^S,v_)))
+          end if
+          if (number_of_species >=3) then
+             cmax(ixO^S)=max(cmax(ixO^S), abs(A3(idim)*wmean(ixO^S,w_)))
+          end if
        end if
     end if
 
@@ -389,15 +417,15 @@ contains
     end if
     dtnew = dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD)
 
-    ! dt < dx / (ndim * advection_coeff)
-    maxA = maxval(abs(A1))
-    if (number_of_species >= 2) then
-        maxA = max(maxA, maxval(abs(A2)))
-    end if
-    if (number_of_species >= 3) then
-        maxA = max(maxA, maxval(abs(A3)))
-    end if
-    dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
+    ! ! dt < dx / (ndim * advection_coeff)
+    ! maxA = maxval(abs(A1))
+    ! if (number_of_species >= 2) then
+    !     maxA = max(maxA, maxval(abs(A2)))
+    ! end if
+    ! if (number_of_species >= 3) then
+    !     maxA = max(maxA, maxval(abs(A3)))
+    ! end if
+    ! dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
 
     ! Estimate time step for reactions
     select case (equation_type)

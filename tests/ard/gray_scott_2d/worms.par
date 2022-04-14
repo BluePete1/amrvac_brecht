@@ -54,8 +54,8 @@
        equation_name = "gray-scott"
        D1 = 2.0d-5
        D2 = 1.0d-5
-       A1 = 0.0d0 0.0d0
-       A2 = 0.0d0 0.0d0
+       A1 = 1.0d0 0.0d0
+       A2 = 1.0d0 0.0d0
        gs_F=0.058d0
        gs_k=0.065d0
  /

@@ -53,8 +53,8 @@
     equation_name = "brusselator"
     D1   = 1.0d0
     D2   = 8.0d0
-    A1   = 1.0d0 1.0d0
-    A2   = 1.0d0 1.0d0
+    A1   = 10.0d0 10.0d0
+    A2   = 10.0d0 10.0d0
     br_A = 4.5d0
     br_B = 8.0d0
 /
