@@ -29,6 +29,10 @@ module mod_ard_phys
   !> Parameter with which to multiply the reaction timestep restriction
   double precision, public, protected :: dtreacpar = 0.5d0
 
+  !> Parameter with which to multiply the advection timestep restriction
+  double precision, public, protected :: dtadvecpar = 1.0d0
+
+
   !> Name of the system to be solved
   character(len=20), public, protected :: equation_name = "gray-scott"
   integer            :: number_of_species  = 2
@@ -344,13 +348,22 @@ contains
     ! since get_v can depend on w, the first argument should be some average over the
     ! left and right state
     wmean(ixO^S,1:nwflux)=0.5d0*(wLC(ixO^S,1:nwflux)+wRC(ixO^S,1:nwflux))
-    call ard_get_v(wmean, x, ixI^L, ixO^L, idim, cmax)
+    !call ard_get_v(wmean, x, ixI^L, ixO^L, idim, cmax)
 
     if (present(cmin)) then
-       cmin(ixO^S) = min(cmax(ixO^S), zero)
-       cmax(ixO^S) = max(cmax(ixO^S), zero)
+       if(advection_linear) then
+          cmin(ixO^S)=min(A1(idim), A2(idim), A3(idim), zero)
+          cmax(ixO^S)=max(A1(idim), A2(idim), A3(idim), zero)
+       else
+          cmin(ixO^S)=min(A1(idim)*minval(wmean(ixO^S,u_)), A2(idim)*minval(wmean(ixO^S,u_)), A3(idim)*minval(wmean(ixO^S,u_)), zero)
+          cmax(ixO^S)=max(A1(idim)*maxval(wmean(ixO^S,u_)), A2(idim)*maxval(wmean(ixO^S,u_)), A3(idim)*maxval(wmean(ixO^S,u_)), zero)
+       end if
     else
-       cmax(ixO^S) = maxval(abs(cmax(ixO^S)))
+       if(advection_linear) then
+          cmax(ixO^S)=max(abs(A1(idim)), abs(A2(idim)), abs(A3(idim)))
+       else
+          cmax(ixO^S)=max(abs(A1(idim)*wmean(ixO^S,u_)), abs(A2(idim)*wmean(ixO^S,u_)), abs(A3(idim)*wmean(ixO^S,u_)))
+       end if
     end if
 
   end subroutine ard_get_cbounds
@@ -363,6 +376,7 @@ contains
     double precision, intent(inout) :: dtnew
     double precision                :: maxrate
     double precision                :: maxD
+    double precision                :: maxA
 
     ! dt < dx^2 / (2 * ndim * diffusion_coeff)
     ! use dtdiffpar < 1 for explicit and > 1 for imex/split
@@ -374,6 +388,16 @@ contains
         maxD = max(maxD, D3)
     end if
     dtnew = dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD)
+
+    ! dt < dx / (ndim * advection_coeff)
+    maxA = maxval(abs(A1))
+    if (number_of_species >= 2) then
+        maxA = max(maxA, maxval(abs(A2)))
+    end if
+    if (number_of_species >= 3) then
+        maxA = max(maxA, maxval(abs(A3)))
+    end if
+    dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
 
     ! Estimate time step for reactions
     select case (equation_type)
