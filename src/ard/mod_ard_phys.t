@@ -396,7 +396,7 @@ contains
     double precision                :: maxD
     double precision                :: maxA
 
-    !dtnew = bigdouble
+    dtnew = bigdouble
 
     ! dt < dx^2 / (2 * ndim * diffusion_coeff)
     ! use dtdiffpar < 1 for explicit and > 1 for imex/split
@@ -408,8 +408,8 @@ contains
         maxD = max(maxD, D3)
     end if
     !print *, "first pre ", dtnew
-    dtnew = dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD)
-    !dtnew = min(dtnew, dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD))
+    !dtnew = dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD)
+    dtnew = min(dtnew, dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD))
     !print *, "first post ", dtnew
 
     ! ! dt < dx / (ndim * advection_coeff)

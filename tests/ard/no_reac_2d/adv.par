@@ -52,6 +52,6 @@
 
 &ard_list
     equation_name = "no_reac"
-    D1   = 0.0d0
+    D1   = 1.0d-15
     A1   = 1.0d0 0.0d0
 /
