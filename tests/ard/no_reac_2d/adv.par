@@ -3,7 +3,9 @@
 !=====================================================
 
 &filelist
-    base_filename = 'pure_ad_'
+    base_filename = 'pure_adv_'
+    convert_type='vtuBCCmpi'
+    autoconvert=T
 /
 
 &savelist
@@ -23,10 +25,10 @@
 /
 
 &boundlist
-    typeboundary_min1 = 2*'periodic'
-    typeboundary_max1 = 2*'periodic'
-    typeboundary_min2 = 2*'periodic'
-    typeboundary_max2 = 2*'periodic'
+    typeboundary_min1 = 'periodic'
+    typeboundary_max1 = 'periodic'
+    typeboundary_min2 = 'periodic'
+    typeboundary_max2 = 'periodic'
 /
 
 &meshlist
@@ -49,7 +51,7 @@
 /
 
 &ard_list
-    equation_name = "brusselator"
+    equation_name = "no_reac"
     D1   = 0.0d0
-    A1   = 0.0d0 0.0d0
+    A1   = 1.0d0 0.0d0
 /

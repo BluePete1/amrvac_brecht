@@ -1,4 +1,4 @@
-!>setdt  - set dt for all levels between levmin and levmax. 
+!!>setdt  - set dt for all levels between levmin and levmax. 
 !>         dtpar>0  --> use fixed dtpar for all level
 !>         dtpar<=0 --> determine CFL limited timestep 
 subroutine setdt()
@@ -34,12 +34,19 @@ subroutine setdt()
         call phys_get_aux(.true.,ps(igrid)%w,ps(igrid)%x,ixG^LL,ixM^LL,'setdt')
       end if
 
+      !print *, "first ", dtnew
+
       call getdt_courant(ps(igrid)%w,ixG^LL,ixM^LL,qdtnew,dx^D,ps(igrid)%x,&
            cmax_mype,a2max_mype)
       dtnew=min(dtnew,qdtnew)
 
+      !print *, "second ", dtnew
+
       call phys_get_dt(ps(igrid)%w,ixG^LL,ixM^LL,qdtnew,dx^D,ps(igrid)%x)
+      !print *, "Between second and third, dtnew = ", dtnew, "and qdtnew = ", qdtnew
       dtnew=min(dtnew,qdtnew)
+
+      !print *, "third ", dtnew
 
       if (associated(usr_get_dt)) then
          call usr_get_dt(ps(igrid)%w,ixG^LL,ixM^LL,qdtnew,dx^D,ps(igrid)%x)
@@ -48,6 +55,7 @@ subroutine setdt()
       dtmin_mype     = min(dtmin_mype,dtnew)
     end do
     !$OMP END PARALLEL DO
+    !print *, "final ", dtnew
   else
      dtmin_mype=dtpar
   end if

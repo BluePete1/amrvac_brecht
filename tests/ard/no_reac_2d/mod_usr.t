@@ -7,7 +7,6 @@ contains
 
   subroutine usr_init()
 
-    call set_coordinate_system("Cartesian")
     usr_init_one_grid => no_reac_init
 
     call ard_activate()
@@ -29,7 +28,7 @@ contains
     l2 = xprobmax2 - xprobmin2
 
     ! Default: steady state
-    w(ix^S,u_) = 1.0d0
+    w(ix^S,u_) = 1.0d1
 
     call random_number(urand)
 
@@ -38,7 +37,7 @@ contains
        ! Center square
        where (abs(x(ix^S, 1) - x1) < 0.1d0 * l1 .and. &
             abs(x(ix^S, 2) - x2) < 0.1d0 * l2)
-          w(ix^S,u_) = 1.0d0
+          w(ix^S,u_) = 5.0d-1
        endwhere
     case (2)
        ! Center square with random noise
@@ -67,10 +66,12 @@ contains
        mymask = mymask .or. (dist2 < (0.1d0*l1)**2)
 
        where (mymask)
-          w(ix^S,u_) = 1.0d0
+          w(ix^S,u_) = 0.5d0
        end where
     case default
        call mpistop("Unknown iprob")
     end select
 
   end subroutine no_reac_init
+
+end module mod_usr
