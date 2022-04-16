@@ -1,10 +1,9 @@
 !=====================================================
-! Turing stripe pattern formation in the Brusselator
-! model.
+! Pure advection-diffusion..
 !=====================================================
 
 &filelist
-    base_filename = 'BR2D_stripes_'
+    base_filename = 'pure_ad_'
 /
 
 &savelist
@@ -51,10 +50,6 @@
 
 &ard_list
     equation_name = "brusselator"
-    D1   = 1.0d0
-    D2   = 8.0d0
-    A1   = 10.0d0 10.0d0
-    A2   = 10.0d0 10.0d0
-    br_A = 4.5d0
-    br_B = 8.0d0
+    D1   = 0.0d0
+    A1   = 0.0d0 0.0d0
 /

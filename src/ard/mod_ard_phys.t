@@ -45,6 +45,7 @@ module mod_ard_phys
   integer, parameter :: eq_belousov_fn     = 6 ! Field-Noyes model, or Oregonator
   integer, parameter :: eq_ext_brusselator = 7
   integer, parameter :: eq_lorenz          = 8
+  integer, parameter :: eq_no_reac         = 9
 
   !> Diffusion coefficient for first species (u)
   double precision, public, protected :: D1 = 0.05d0
@@ -153,6 +154,9 @@ contains
     case ("lorenz")
        equation_type = eq_lorenz
        number_of_species = 3
+    case ("no_reac")
+       equation_type = eq_no_reac
+       number_of_species = 1
     case default
        call mpistop("Unknown equation_name (valid: gray-scott, schnakenberg, ...)")
     end select
@@ -301,21 +305,7 @@ contains
     ! Do nothing (primitive and conservative are equal for ard module)
   end subroutine ard_to_primitive
 
-  !subroutine ard_get_v(w, x, ixI^L, ixO^L, idim, v)
-  !  use mod_global_parameters
-  !  integer, intent(in)           :: ixI^L, ixO^L, idim
-  !  double precision, intent(in)  :: w(ixI^S, nw), x(ixI^S, 1:^ND)
-  !  double precision, intent(out) :: v(ixI^S)
-
-  !  if(advection_linear) then
-  !     v(ixO^S)=A1
-  !  else
-  !     v(ixO^S)=A1*w(ixO^S,u_)
-  !  end if
-
-  !end subroutine ard_get_v
-
- subroutine ard_get_cmax(w, x, ixI^L, ixO^L, idim, cmax)
+  subroutine ard_get_cmax(w, x, ixI^L, ixO^L, idim, cmax)
     use mod_global_parameters
     integer, intent(in)                       :: ixI^L, ixO^L, idim
     double precision, intent(in)              :: w(ixI^S, nw), x(ixI^S, 1:^ND)
@@ -454,6 +444,9 @@ contains
     case (eq_lorenz)
        ! det(J) = sigma(b(r-1) + x*(x*+y*))
        maxrate = max(lor_sigma, 1.0d0, lor_b)
+    case (eq_no_reac)
+       ! No reaction term, so no influence on timestep
+       maxrate = zero
     case default
        maxrate = one
        call mpistop("Unknown equation type")
@@ -590,6 +583,8 @@ contains
           ! zdot = x.y - b.z
           w(ixO^S, w_) = w(ixO^S, w_) + qdt * (D3 * lpl_w &
                + wCT(ixO^S, u_)*wCT(ixO^S, v_) - lor_b * wCT(ixO^S, w_))
+       case (eq_no_reac)
+          w(ixO^S, u_) = w(ixO^S, u_) + qdt * D1 * lpl_u
        case default
           call mpistop("Unknown equation type")
        end select

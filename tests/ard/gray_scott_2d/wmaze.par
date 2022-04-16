@@ -20,7 +20,7 @@
 
  &methodlist
         time_stepper = 'twostep'
-        flux_scheme = 20*'source'
+        flux_scheme = 20*'tvdlf'
         limiter= 20*'koren'
  /
 
