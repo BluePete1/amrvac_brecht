@@ -1,9 +1,9 @@
 !=====================================================
-! Pure advection-diffusion..
+! Advection-diffusion.
 !=====================================================
 
 &filelist
-    base_filename = 'adv_diff_'
+    base_filename = 'output/adv_diff_'
     convert_type='vtuBCCmpi'
     autoconvert=T
 /
