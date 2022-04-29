@@ -3,7 +3,7 @@
 !=====================================================
 
  &filelist
-        base_filename='output/maze_adv2_'
+        base_filename='output/worms_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /
@@ -20,8 +20,8 @@
 
  &methodlist
         time_stepper = 'twostep'
-        time_integrator = 'IMEX_Midpoint'
         flux_scheme = 20*'tvdlf'
+        limiter= 20*'mp5'
  /
 
  &boundlist
@@ -36,8 +36,9 @@
         refine_threshold=20*0.1d0
         block_nx1=16
         block_nx2=16
-        domain_nx1=512
-        domain_nx2=512
+        domain_nx1=256
+        domain_nx2=256
+        iprob=3
         xprobmin1=0.0d0
         xprobmax1=2.5d0
         xprobmin2=0.0d0
@@ -46,18 +47,15 @@
 
  &paramlist
        courantpar=0.8d0
-       dtdiffpar=100.0d0
- /
        typecourant='minimum'
-       dtpar=0.25d0
+ /
 
  &ard_list
        equation_name = "gray-scott"
        D1 = 2.0d-5
        D2 = 1.0d-5
-       advection_linear = F
-       A1 = 2.0d-4 4.0d-5
-       A2 = 3.0d-4 1.0d-5
-       gs_F=0.029d0
-       gs_k=0.057d0
+       A1 = 1.0d0 0.0d0
+       A2 = 1.0d0 0.0d0
+       gs_F=0.058d0
+       gs_k=0.065d0
  /

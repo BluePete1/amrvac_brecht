@@ -1,9 +1,9 @@
 !=====================================================
-! Pure advection.
+! Pure Diffusion.
 !=====================================================
 
 &filelist
-    base_filename = 'output/pure_adv_'
+    base_filename = 'output/pure_diff_'
     convert_type='vtuBCCmpi'
     autoconvert=T
 /
@@ -20,9 +20,8 @@
 
 &methodlist
     flux_scheme     = 20*'tvdlf'
-    time_stepper    = 'threestep'
-    !time_integrator = 'IMEX_Euler'
-    limiter         = 20*'minmod'
+    time_stepper    = 'onestep'
+    time_integrator = 'IMEX_Euler'
 /
 
 &boundlist
@@ -53,6 +52,5 @@
 
 &ard_list
     equation_name = "no_reac"
-    D1   = 0.0d0
-    A1   = 1.0d0 0.0d0
+    D1   = 1.0d0
 /
