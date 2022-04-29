@@ -27,6 +27,7 @@ contains
     usr_add_aux_names   => specialvarnames_output 
     usr_init_vector_potential=>initvecpot_usr
     usr_set_wLR         => boundary_wLR
+    !usr_refine_threshold=> specialthreshold
     !usr_set_electric_field => boundary_electric_field
 
     call mhd_activate()
@@ -569,54 +570,18 @@ contains
       w(ixO^S,nw+6+idir)=curlvec(ixO^S,idir)
     end do
 
-    !! temperature gradient at cell centers
-    !do idir=1,ndim
-    !  call gradient(Te,ixI^L,ixO^L,idir,tmp2)
-    !  gradT(ixO^S,idir)=tmp2(ixO^S)
-    !end do
-    !! |B|
-    !tmp2(ixO^S)=dsqrt(B2(ixO^S))
-    !where(tmp2(ixO^S)/=0.d0)
-    !  tmp2(ixO^S)=1.d0/tmp2(ixO^S)
-    !elsewhere
-    !  tmp2(ixO^S)=bigdouble
-    !end where
-    !! b unit vector: magnetic field direction vector
-    !do idir=1,ndim
-    !  bunitvec(ixO^S,idir)=Btotal(ixO^S,idir)*tmp2(ixO^S)
-    !end do
-    !! temperature length scale inversed
-    !tmp2(ixO^S)=abs(sum(gradT(ixO^S,1:ndim)*bunitvec(ixO^S,1:ndim),dim=ndim+1))/Te(ixO^S)
-    !! fraction of cells size to temperature length scale
-    !tmp2(ixO^S)=minval(dxlevel)*tmp2(ixO^S)
-    !w(ixO^S,nw+10)=tmp2(ixO^S)
+    if(nw_extra>0) w(ixO^S,nw+10)=block%wextra(ixO^S,iw_tcoff)
 
-    !lrlt=.false.
-    !where(tmp2(ixO^S) > 0.5d0)
-    !  lrlt(ixO^S)=.true.
-    !end where
-    !w(ixO^S,nw+11)=1.d-9
-    !where(lrlt(ixO^S))
-    !  w(ixO^S,nw+11)=Te(ixO^S)
-    !end where
-    !w(ixO^S,nw+12)=0.d0
-    !if(any(lrlt(ixO^S))) then
-    !  w(ixO^S,nw+12)=maxval(Te(ixO^S), mask=lrlt(ixO^S))
-    !end if
-
-    !where(w(ixO^S,nw+12)>0.5d0)
-    !  w(ixO^S,nw+12)=0.5d0
-    !else where(w(ixO^S,nw+12)<0.02d0)
-    !  w(ixO^S,nw+12)=0.02d0
-    !end where
-  
   end subroutine specialvar_output
 
   subroutine specialvarnames_output(varnames)
   ! newly added variables need to be concatenated with the w_names/primnames string
     character(len=*) :: varnames
-    !varnames='Te Alfv divB beta bQ rad j1 j2 j3 trac ttrac tcutoff'
-    varnames='Te Alfv divB beta bQ rad j1 j2 j3'
+    if(nw_extra>0) then
+      varnames='Te Alfv divB beta bQ rad j1 j2 j3 Tcutoff'
+    else
+      varnames='Te Alfv divB beta bQ rad j1 j2 j3'
+    end if
 
   end subroutine specialvarnames_output
 
@@ -632,5 +597,33 @@ contains
     wB0(ixO^S,3)=-B0*dcos(kx*x(ixO^S,1))*dexp(-ly*x(ixO^S,2))*dsin(theta)
 
   end subroutine specialset_B0
+
+  subroutine specialthreshold(wlocal,xlocal,tolerance,qt,level)
+    !PURPOSE: use different tolerance in special regions for AMR to
+    !reduce/increase resolution there where nothing/something interesting happens.
+    use mod_global_parameters
+
+    double precision, intent(in) :: wlocal(1:nw),xlocal(1:ndim),qt
+    double precision, intent(inout) :: tolerance
+    integer, intent(in) :: level
+
+    double precision :: bczone^D,addtol,tol_add
+
+    tol_add=0.d0
+    !amplitude of additional tolerance
+    addtol=0.6d0
+    ! thickness of near-boundary region
+    bczone1=0.8d0
+    bczone2=2.d0
+    ! linear changing of additional tolerance
+    if(xlocal(1)-xprobmin1 < bczone1 .or. xprobmax1-xlocal(1) < bczone1) then
+      tol_add=(1.d0-min(xlocal(1)-xprobmin1,xprobmax1-xlocal(1))/bczone1)*addtol
+    endif
+    if(xprobmax2-xlocal(2) < bczone2) then
+      tol_add=(1.d0-(xprobmax2-xlocal(2))/bczone2)*addtol
+    endif
+    tolerance=tolerance+tol_add
+
+  end subroutine specialthreshold
 
 end module mod_usr
