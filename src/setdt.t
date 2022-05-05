@@ -43,7 +43,7 @@ subroutine setdt()
       !print *, "second ", dtnew
 
       call phys_get_dt(ps(igrid)%w,ixG^LL,ixM^LL,qdtnew,dx^D,ps(igrid)%x)
-      !print *, "Between second and third, dtnew = ", dtnew, "and qdtnew = ", qdtnew
+      !print *, "Between second and third, dtnew = ", dtnew, "and qdtnew = ", qdtnew, " en ", min(dtnew,qdtnew)
       dtnew=min(dtnew,qdtnew)
 
       !print *, "third ", dtnew

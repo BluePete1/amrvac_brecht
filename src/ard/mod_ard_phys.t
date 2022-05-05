@@ -436,14 +436,17 @@ contains
     if (number_of_species >= 3) then
         maxA = max(maxA, maxval(abs(A3)))
     end if
+    !print *, "dtadvecpar = ", dtadvecpar, "ndim = ", ndim, "maxA = ", maxA, "dt_pot = ", dtadvecpar / (ndim * maxA)
     dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
-    !print *, "second ", dtnew
+    !print *, "post second ", dtnew
 
     ! Estimate time step for reactions
     select case (equation_type)
     case (eq_gray_scott)
        maxrate = max(maxval(w(ixO^S, v_))**2 + gs_F, &
             maxval(w(ixO^S, v_) * w(ixO^S, u_)) - gs_F - gs_k)
+       print *, "testje: ", maxrate, " en ", maxval(w(ixO^S, v_))**2 + gs_F, &
+            " en ", maxval(w(ixO^S, v_) * w(ixO^S, u_)) - gs_F - gs_k
     case (eq_schnakenberg)
        maxrate = max(maxval(abs(w(ixO^S, v_) * w(ixO^S, u_) - 1)), &
             maxval(w(ixO^S, u_))**2)
@@ -474,6 +477,8 @@ contains
        call mpistop("Unknown equation type")
     end select
 
+    !print *, "nieuwke hier: ", dtnew, " en ", dtreacpar, " en ", maxrate
+    !print *, "Samen: ", dtreacpar / maxrate, " en dan ", min(dtnew, dtreacpar / maxrate)
     dtnew = min(dtnew, dtreacpar / maxrate)
     !print *, "third ", dtnew
 
