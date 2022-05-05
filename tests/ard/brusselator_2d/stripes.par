@@ -4,7 +4,7 @@
 !=====================================================
 
 &filelist
-    base_filename = 'output/BR2D_stripes_'
+    base_filename = 'output/BR2D_stripes_test2_'
     convert_type = 'vtuBCCmpi'
     autoconvert = T
 /
@@ -21,8 +21,9 @@
 
 &methodlist
     flux_scheme     = 20*'tvdlf'
-    time_stepper    = 'onestep'
-    time_integrator = 'IMEX_Euler'
+    time_stepper    = 'twostep'
+    !time_integrator = 'IMEX_Euler'
+    !limiter         = 20*'minmod'
 /
 
 &boundlist
@@ -33,7 +34,7 @@
 /
 
 &meshlist
-    refine_max_level = 1
+    refine_max_level = 2
 
     domain_nx1 = 128
     domain_nx2 = 128
@@ -44,6 +45,8 @@
     xprobmax1 = 64.0d0
     xprobmin2 = 0.0d0
     xprobmax2 = 64.0d0
+
+    iprob = 3
 /
 
 &paramlist
@@ -55,8 +58,8 @@
     equation_name = "brusselator"
     D1   = 1.0d0
     D2   = 8.0d0
-    A1   = 1.0d-2 1.0d-2
-    A2   = 1.0d-2 1.0d-2
+    !A1   = 1.0d0 0.0d0
+    !A2   = 1.0d0 0.0d0
     br_A = 4.5d0
     br_B = 8.0d0
 /

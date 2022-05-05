@@ -254,21 +254,21 @@ contains
           ! Set boundary conditions for the multigrid solver
           do n = 1, 2*ndim
              select case (typeboundary(iw, n))
-             case ('symm')
+             case (bc_symm)
                 ! d/dx u = 0
                 ard_mg_bc(i, n)%bc_type = mg_bc_neumann
                 ard_mg_bc(i, n)%bc_value = 0.0_dp
-             case ('asymm')
+             case (bc_asymm)
                 ! u = 0
                 ard_mg_bc(i, n)%bc_type = mg_bc_dirichlet
                 ard_mg_bc(i, n)%bc_value = 0.0_dp
-             case ('cont')
+             case (bc_cont)
                 ! d/dx u = 0
                 ard_mg_bc(i, n)%bc_type = mg_bc_neumann
                 ard_mg_bc(i, n)%bc_value = 0.0_dp
-             case ('periodic')
+             case (bc_periodic)
                 ! Nothing to do here
-             case ('special')
+             case (bc_special)
                 if (.not. associated(ard_mg_bc(i, n)%boundary_cond)) then
                    write(*, "(A,I0,A,I0,A)") "typeboundary(", iw, ",", n, &
                         ") is 'special', but the corresponding method " // &
@@ -276,8 +276,7 @@ contains
                    call mpistop("ard_mg_bc(i, n)%boundary_cond not set")
                 end if
              case default
-                print *, "divb_multigrid warning: unknown b.c.: ", &
-                     trim(typeboundary(iw, n))
+                write(*,*) "ard_check_params warning: unknown boundary type"
                 ard_mg_bc(i, n)%bc_type = mg_bc_dirichlet
                 ard_mg_bc(i, n)%bc_value = 0.0_dp
              end select
@@ -304,6 +303,23 @@ contains
 
     ! Do nothing (primitive and conservative are equal for ard module)
   end subroutine ard_to_primitive
+
+  ! subroutine ard_get_v(w, x, ixI^L, ixO^L, idim, v)
+  !   use mod_global_parameters
+  !   integer, intent(in)           :: ixI^L, ixO^L, idim
+  !   double precision, intent(in)  :: w(ixI^S, nw), x(ixI^S, 1:^ND)
+  !   double precision, intent(out) :: v(ixI^S)
+  ! 
+  !  select case(nonlinear_flux_type)
+  !   case(1)
+  !      v(ixO^S)=w(ixO^S,rho_)
+  !   case(2)
+  !      v(ixO^S)=3.0d0*w(ixO^S,rho_)**2
+  !   case default
+  !      call mpistop('Undefined fluxtype: set nonlinear_flux_type to 1 or 2')
+  !   end select
+  ! 
+  ! end subroutine ard_get_v
 
   subroutine ard_get_cmax(w, x, ixI^L, ixO^L, idim, cmax)
     use mod_global_parameters
@@ -412,15 +428,16 @@ contains
     dtnew = min(dtnew, dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD))
     !print *, "first post ", dtnew
 
-    ! ! dt < dx / (ndim * advection_coeff)
-    ! maxA = maxval(abs(A1))
-    ! if (number_of_species >= 2) then
-    !     maxA = max(maxA, maxval(abs(A2)))
-    ! end if
-    ! if (number_of_species >= 3) then
-    !     maxA = max(maxA, maxval(abs(A3)))
-    ! end if
-    ! dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
+    ! dt < dx / (ndim * advection_coeff)
+    maxA = maxval(abs(A1))
+    if (number_of_species >= 2) then
+        maxA = max(maxA, maxval(abs(A2)))
+    end if
+    if (number_of_species >= 3) then
+        maxA = max(maxA, maxval(abs(A3)))
+    end if
+    dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
+    !print *, "second ", dtnew
 
     ! Estimate time step for reactions
     select case (equation_type)
@@ -457,9 +474,8 @@ contains
        call mpistop("Unknown equation type")
     end select
 
-    !print *, "second pre ", dtnew
     dtnew = min(dtnew, dtreacpar / maxrate)
-    !print *, "second post ", dtnew
+    !print *, "third ", dtnew
 
   end subroutine ard_get_dt
 

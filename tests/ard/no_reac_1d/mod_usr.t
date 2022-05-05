@@ -50,6 +50,18 @@ contains
         where (abs(x(ix^S, 1) - x1) < 2 * atan(1.0d0))
           w(ix^S,u_) = 1.0d0 * cos(x(ix^S, 1)-x1)
        endwhere
+    case (5)
+       ! Triangle right
+       w(ix^S,u_) = 0.0d0
+       where (abs(x(ix^S, 1) - x1) < 0.1d0 * l1)
+          w(ix^S,u_) = (x(ix^S,1) - x1 + 0.1d0 * l1) / (0.1d0 * l1)
+       endwhere
+    case (6)
+       ! Triangle left
+       w(ix^S,u_) = 0.0d0
+       where (abs(x(ix^S, 1) - x1) < 0.1d0 * l1)
+          w(ix^S,u_) = 2d0 - (x(ix^S,1) - x1 + 0.1d0 * l1) / (0.1d0 * l1)
+       endwhere
     case default
        call mpistop("Unknown iprob")
     end select

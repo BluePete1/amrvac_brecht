@@ -1,0 +1,12 @@
+ &filelist
+        base_filename='_basis_'
+ /
+
+ &meshlist
+        refine_max_level=1
+        refine_threshold=20*0.1d0
+        block_nx1=10
+        block_nx2=10
+        domain_nx1=200
+        domain_nx2=200
+ /

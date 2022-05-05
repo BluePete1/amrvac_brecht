@@ -22,7 +22,7 @@ base_filename = 'output/nonlin_adv_diff_test_'
 &methodlist
     flux_scheme     = 20*'tvdlf'
     time_stepper    = 'onestep'
-    time_integrator = 'IMEX_Euler'
+    time_integrator = 'Forward_Euler'
     limiter         = 20*'weno7'
 /
 
