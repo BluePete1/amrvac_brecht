@@ -445,8 +445,8 @@ contains
     case (eq_gray_scott)
        maxrate = max(maxval(w(ixO^S, v_))**2 + gs_F, &
             maxval(w(ixO^S, v_) * w(ixO^S, u_)) - gs_F - gs_k)
-       print *, "testje: ", maxrate, " en ", maxval(w(ixO^S, v_))**2 + gs_F, &
-            " en ", maxval(w(ixO^S, v_) * w(ixO^S, u_)) - gs_F - gs_k
+    !   print *, "testje: ", maxrate, " en ", maxval(w(ixO^S, v_))**2 + gs_F, &
+    !        " en ", maxval(w(ixO^S, v_) * w(ixO^S, u_)) - gs_F - gs_k
     case (eq_schnakenberg)
        maxrate = max(maxval(abs(w(ixO^S, v_) * w(ixO^S, u_) - 1)), &
             maxval(w(ixO^S, u_))**2)

@@ -3,6 +3,8 @@
 &filelist
     base_filename = 'gs2d_chaos'
     typefilelog   = 'regression_test'
+    convert_type  = 'vtuBCCmpi'
+    autoconvert   = T
 /
 
 &savelist
