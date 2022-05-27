@@ -6,7 +6,7 @@
 !============================================================
 
 &filelist
-    base_filename = 'data/LG1D_toy_'
+    base_filename = 'data/LG1D_toy_adv_'
     convert_type  = 'vtuBCCmpi'
     autoconvert   = T
 /
@@ -49,4 +49,5 @@
     equation_name = "logistic"
     D1        = 1.0d0
     lg_lambda = 1.0d0
+    A1        = -2.014d0
 /

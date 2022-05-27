@@ -7,4 +7,5 @@
         block_nx2=16
         domain_nx1=512
         domain_nx2=512
+        !max_blocks=20000
  /

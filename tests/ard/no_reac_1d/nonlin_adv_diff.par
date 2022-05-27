@@ -3,7 +3,7 @@
 !=====================================================
 
 &filelist
-base_filename = 'output/nonlin_adv_diff_test_'
+    base_filename = 'output/nonlin_adv_diff_'
     convert_type='vtuBCCmpi'
     autoconvert=T
 /
@@ -21,9 +21,9 @@ base_filename = 'output/nonlin_adv_diff_test_'
 
 &methodlist
     flux_scheme     = 20*'tvdlf'
-    time_stepper    = 'onestep'
-    time_integrator = 'Forward_Euler'
-    limiter         = 20*'weno7'
+    time_stepper    = 'threestep'
+    !time_integrator = 'Forward_Euler'
+    !limiter         = 20*'weno7'
 /
 
 &boundlist
@@ -35,8 +35,8 @@ base_filename = 'output/nonlin_adv_diff_test_'
     refine_max_level = 4
     refine_threshold = 20*0.1d0
 
-    domain_nx1 = 40
-    block_nx1  = 10
+    domain_nx1 = 1024
+    block_nx1  = 16
 
     xprobmin1 = -4.0d0
     xprobmax1 = 4.0d0
@@ -52,7 +52,7 @@ base_filename = 'output/nonlin_adv_diff_test_'
 
 &ard_list
     equation_name = "no_reac"
-    advection_linear = F
-    D1   = 0.0d0
-    A1   = 2.0d0
+    adv_pow = 2
+    D1   = 1.0d-1
+    A1   = 2.0d0 1.0d0
 /

@@ -10,15 +10,28 @@ contains
   subroutine usr_init()
      integer :: i
 
+     print *, "test 1"
      call set_coordinate_system('Cartesian')
+     print *, "test 2"
      call ard_activate()
-
+     print *, "test 3"
+     
      usr_init_one_grid => lg_init     
-   
+     print *, "test 4"
+     
      if (iprob == 2) then
+        print *, "test 5"
         usr_special_bc    => lg_bound
         do i = 1, 2*ndim
            ard_mg_bc(1, i)%boundary_cond => lg_bound_mg
+        end do
+     end if
+     
+     if (iprob == 3) then
+        print *, "test 6"
+        usr_special_bc    => lg_bound_adv
+        do i = 1, 2*ndim
+           ard_mg_bc(1, i)%boundary_cond => lg_bound_mg_adv
         end do
      end if
   end subroutine usr_init
@@ -41,6 +54,9 @@ contains
            w(ix^S, u_) = 1.0d0 / 4.0d0
         end where
      case (2)
+        ! Analytical solution of Fisher equation
+        w(ix^S, u_) = lg_solution(x(ix^S, 1), 0.0_dp)
+     case (3)
         ! Analytical solution of Fisher equation
         w(ix^S, u_) = lg_solution(x(ix^S, 1), 0.0_dp)
     
@@ -78,6 +94,36 @@ contains
 
      bc = lg_solution(rr(1), global_time)
   end subroutine lg_bound_mg
+  
+  !> Boundary conditions for the analytical solution with advection
+  subroutine lg_bound_adv(qt,ixG^L,ixO^L,iB,w,x)
+     integer, intent(in)             :: ixG^L, ixO^L, iB
+     double precision, intent(in)    :: qt, x(ixG^S,1:ndim)
+     double precision, intent(inout) :: w(ixG^S,1:nw)
+
+     w(ixO^S, u_) = lg_solution(x(ixO^S,1), 0.0d0)
+  end subroutine lg_bound_adv
+
+  !> Boundary conditions for the analytical solution with advection when using IMEX scheme
+  subroutine lg_bound_mg_adv(box, nc, iv, nb, bc_type, bc)
+     use mod_multigrid_coupling
+     type(mg_box_t), intent(in)    :: box
+     integer, intent(in)           :: nc
+     integer, intent(in)           :: iv      !< Index of variable
+     integer, intent(in)           :: nb      !< Direction
+     integer, intent(out)          :: bc_type !< Type of b.c.
+     double precision, intent(out) :: bc(1)
+     double precision              :: rr(2)
+     integer                       :: i, ixs(ndim-1), nb_dim, n_bc
+
+     ! Type of boundary condition
+     bc_type = mg_bc_dirichlet
+
+     ! Get the coordinates at the cell faces at the boundary
+     call mg_get_face_coords(box, nb, nc, rr)
+     
+     bc = lg_solution(rr(1), 0.0d0)
+  end subroutine lg_bound_mg_adv
   
   !> An analytical solution of the Fisher equation (for a certain wave speed)
   elemental function lg_solution(x,t) result(val)

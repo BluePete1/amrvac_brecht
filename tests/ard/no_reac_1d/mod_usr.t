@@ -33,8 +33,9 @@ contains
     select case (iprob)
     case (1)
        ! Center square
+       w(ix^S,u_) = 0.0d0
        where (abs(x(ix^S, 1) - x1) < 0.1d0 * l1)
-          w(ix^S,u_) = 5.0d-1
+          w(ix^S,u_) = 1.0d0
        endwhere
     case (2)
        ! Center square with random noise

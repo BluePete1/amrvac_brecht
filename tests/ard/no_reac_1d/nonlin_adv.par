@@ -12,18 +12,18 @@
     itsave(1,1) = 0
     itsave(1,2) = 0
     ditsave_log = 1
-    dtsave_dat = 2.0d-3
+    dtsave_dat = 2.0d-2
 /
 
 &stoplist
-    time_max = 2.0d-1
+    time_max = 2.0d0
 /
 
 &methodlist
     flux_scheme     = 20*'tvdlf'
     time_stepper    = 'threestep'
     !time_integrator = 'IMEX_Euler'
-    limiter         = 20*'cada3'
+    !limiter         = 20*'cada3'
 /
 
 &boundlist
@@ -35,11 +35,11 @@
     refine_max_level = 4
     refine_threshold = 20*0.1d0
 
-    domain_nx1 = 120
-    block_nx1  = 10
+    domain_nx1 = 1024
+    block_nx1  = 16
 
-    xprobmin1 = 0.0d0
-    xprobmax1 = 1.0d1
+    xprobmin1 = -4.0d0
+    xprobmax1 = 4.0d0
 
     iprob = 4
 /
@@ -52,7 +52,7 @@
 
 &ard_list
     equation_name = "no_reac"
-    advection_linear = F
+    adv_pow = 2
     D1   = 0.0d0
-    A1   = 1.0d0 0.0d0
+    A1   = 2.0d0
 /

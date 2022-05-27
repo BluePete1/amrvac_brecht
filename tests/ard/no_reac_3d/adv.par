@@ -1,9 +1,9 @@
 !=====================================================
-! Pure nonlinear advection.
+! Pure advection.
 !=====================================================
 
 &filelist
-    base_filename = 'output/nonlin_adv_'
+    base_filename = 'output/pure_adv_'
     convert_type='vtuBCCmpi'
     autoconvert=T
 /
@@ -31,10 +31,12 @@
     typeboundary_max1 = 'periodic'
     typeboundary_min2 = 'periodic'
     typeboundary_max2 = 'periodic'
+    typeboundary_min3 = 'periodic'
+    typeboundary_max3 = 'periodic'
 /
 
 &meshlist
-    refine_max_level = 4
+    refine_max_level = 3
     refine_threshold = 20*0.1d0
 
     domain_nx1 = 60
@@ -44,6 +46,8 @@
     xprobmax1 = 5.0d0
     xprobmin2 = 0.0d0
     xprobmax2 = 5.0d0
+    xprobmin3 = 0.0d0
+    xprobmax3 = 5.0d0
 /
 
 &paramlist
@@ -54,7 +58,6 @@
 
 &ard_list
     equation_name = "no_reac"
-    adv_pow = 2
     D1   = 0.0d0
-    A1   = 1.0d0 1.0d0
+    A1   = 1.0d0 0.0d0 0.0d0
 /

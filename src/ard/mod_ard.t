@@ -1,4 +1,4 @@
-!> Module containing all routines for reaction-diffusion
+!> Module containing all routines for advection-reaction-diffusion
 module mod_ard
   use mod_ard_phys
   use mod_amrvac

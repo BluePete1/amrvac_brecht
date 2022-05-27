@@ -41,7 +41,7 @@ base_filename = 'output/pure_adv_'
     xprobmin1 = -4.0d0
     xprobmax1 = 4.0d0
 
-    iprob = 6
+    iprob = 1
 /
 
 &paramlist
@@ -52,7 +52,6 @@ base_filename = 'output/pure_adv_'
 
 &ard_list
     equation_name = "no_reac"
-    advection_linear = T
     D1   = 0.0d0
-    A1   = 3.0d0
+    A1   = 2.0d0
 /

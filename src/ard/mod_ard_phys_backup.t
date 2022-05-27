@@ -1,7 +1,5 @@
 !> Advection-reaction-diffusion module (physics routines)
 !>
-!> Advection term is of the form (A/adv_pow) * u^adv_pow
-!>
 !> Multiple advection-reaction-diffusion systems are included: the Gray-Scott model,
 !> the Schnakenberg model, the Brusselator model, the diffusive logistic equation,
 !> an analytical testcase from "Numerical solution of time-dependent advection-
@@ -21,6 +19,9 @@ module mod_ard_phys
   integer, protected, public :: u_ = 1
   integer, protected, public :: v_ = 2 !< For 2 or more equations
   integer, protected, public :: w_ = 3 !< For 3 or more equations
+
+  !> Whether advection is linear (A) or nonlinear (Au^2/2)
+  logical, public, protected :: advection_linear = .true.
 
   !> Whether particles module is added
   logical, public, protected :: ard_particles = .false.
@@ -52,9 +53,6 @@ module mod_ard_phys
   double precision, public, protected :: D2 = 1.0d0
   !> Diffusion coefficient for third species (w) (if applicable)
   double precision, public, protected :: D3 = 1.0d0
-
-  !> Power of u in the advection term
-  integer, public, protected :: adv_pow = 1
 
   !> Advection coefficients for first species (u)
   double precision, public, protected :: A1(^ND) = 0.0d0
@@ -120,10 +118,10 @@ contains
     character(len=*), intent(in) :: files(:)
     integer                      :: n
 
-    namelist /ard_list/ D1, D2, D3, adv_pow, A1, A2, A3, sb_alpha, sb_beta, sb_kappa, &
+    namelist /ard_list/ D1, D2, D3, A1, A2, A3, sb_alpha, sb_beta, sb_kappa, &
         gs_F, gs_k, br_A, br_B, br_C, br_D, lg_lambda, bzfn_epsilon, bzfn_delta, &
-        bzfn_lambda, bzfn_mu, lor_r, lor_sigma, lor_b, equation_name, ard_particles, &
-        ard_source_split, dtreacpar
+        bzfn_lambda, bzfn_mu, lor_r, lor_sigma, lor_b, &
+        equation_name, advection_linear, ard_particles, ard_source_split, dtreacpar
 
     do n = 1, size(files)
        open(unitpar, file=trim(files(n)), status='old')
@@ -312,7 +310,14 @@ contains
   !   double precision, intent(in)  :: w(ixI^S, nw), x(ixI^S, 1:^ND)
   !   double precision, intent(out) :: v(ixI^S)
   ! 
-  !   v(ixO^S)=w(ixO^S,rho_)**(adv_pow-1)
+  !  select case(nonlinear_flux_type)
+  !   case(1)
+  !      v(ixO^S)=w(ixO^S,rho_)
+  !   case(2)
+  !      v(ixO^S)=3.0d0*w(ixO^S,rho_)**2
+  !   case default
+  !      call mpistop('Undefined fluxtype: set nonlinear_flux_type to 1 or 2')
+  !   end select
   ! 
   ! end subroutine ard_get_v
 
@@ -326,12 +331,16 @@ contains
 
     !cmax(ixO^S) = abs(cmax(ixO^S)) 
 
-    cmax(ixO^S)=abs(A1(idim) * w(ixO^S,u_)**(adv_pow-1))
-    if (number_of_species >= 2) then
-       cmax(ixO^S)=max(cmax(ixO^S), abs(A2(idim) * w(ixO^S,v_)**(adv_pow-1)))
-    end if
-    if (number_of_species >= 3) then
-       cmax(ixO^S)=max(cmax(ixO^S), abs(A3(idim) * w(ixO^S,w_)**(adv_pow-1)))
+    if(advection_linear) then
+       cmax(ixO^S)=max(abs(A1(idim)), abs(A2(idim)), abs(A3(idim)))
+    else
+       cmax(ixO^S)=abs(A1(idim)*w(ixO^S,u_))
+       if (number_of_species >= 2) then
+          cmax(ixO^S)=max(cmax(ixO^S), abs(A2(idim)*w(ixO^S,v_)))
+       end if
+       if (number_of_species >= 3) then
+          cmax(ixO^S)=max(cmax(ixO^S), abs(A3(idim)*w(ixO^S,w_)))
+       end if
     end if
 
   end subroutine ard_get_cmax
@@ -354,23 +363,40 @@ contains
     !call ard_get_v(wmean, x, ixI^L, ixO^L, idim, cmax)
 
     if (present(cmin)) then
-       cmin(ixO^S) = min(A1(idim) * wmean(ixO^S,u_)**(adv_pow-1), zero)
-       cmax(ixO^S) = max(A1(idim) * wmean(ixO^S,u_)**(adv_pow-1), zero)
-       if (number_of_species >= 2) then
-          cmin(ixO^S) = min(cmin(ixO^S), A2(idim) * wmean(ixO^S,v_)**(adv_pow-1))
-          cmax(ixO^S) = max(cmax(ixO^S), A2(idim) * wmean(ixO^S,v_)**(adv_pow-1))
-       end if
-       if (number_of_species >= 3) then
-          cmin(ixO^S) = min(cmin(ixO^S), A3(idim) * wmean(ixO^S,w_)**(adv_pow-1))
-          cmax(ixO^S) = max(cmax(ixO^S), A3(idim) * wmean(ixO^S,w_)**(adv_pow-1))
+       if(advection_linear) then
+          cmin(ixO^S)=min(A1(idim), zero)
+          cmax(ixO^S)=max(A1(idim), zero)
+          if (number_of_species >= 2) then
+             cmin(ixO^S)=min(cmin(ixO^S), A2(idim))
+             cmax(ixO^S)=max(cmax(ixO^S), A2(idim))
+          end if
+          if (number_of_species >= 3) then
+             cmin(ixO^S)=min(cmin(ixO^S), A3(idim))
+             cmax(ixO^S)=max(cmax(ixO^S), A3(idim))
+          end if
+       else
+          cmin(ixO^S)=min(A1(idim)*minval(wmean(ixO^S,u_)), zero)
+          cmax(ixO^S)=max(A1(idim)*maxval(wmean(ixO^S,u_)), zero)
+          if (number_of_species >= 2) then
+             cmin(ixO^S)=min(cmin(ixO^S), A2(idim)*minval(wmean(ixO^S,v_)))
+             cmax(ixO^S)=max(cmax(ixO^S), A2(idim)*maxval(wmean(ixO^S,v_)))
+          end if
+          if (number_of_species >= 3) then
+             cmin(ixO^S)=min(cmin(ixO^S), A3(idim)*minval(wmean(ixO^S,w_)))
+             cmax(ixO^S)=max(cmax(ixO^S), A3(idim)*maxval(wmean(ixO^S,w_)))
+          end if
        end if
     else
-       cmax(ixO^S) = maxval(abs(A1(idim) * wmean(ixO^S,u_)**(adv_pow-1)))
-       if (number_of_species >=2) then
-          cmax(ixO^S)=max(cmax(ixO^S), maxval(abs(A2(idim) * wmean(ixO^S,v_)**(adv_pow-1))))
-       end if
-       if (number_of_species >=3) then
-          cmax(ixO^S)=max(cmax(ixO^S), maxval(abs(A3(idim) * wmean(ixO^S,w_)**(adv_pow-1))))
+       if(advection_linear) then
+          cmax(ixO^S)=max(abs(A1(idim)), abs(A2(idim)), abs(A3(idim)))
+       else
+          cmax(ixO^S)=abs(A1(idim)*wmean(ixO^S,u_))
+          if (number_of_species >=2) then
+             cmax(ixO^S)=max(cmax(ixO^S), abs(A2(idim)*wmean(ixO^S,v_)))
+          end if
+          if (number_of_species >=3) then
+             cmax(ixO^S)=max(cmax(ixO^S), abs(A3(idim)*wmean(ixO^S,w_)))
+          end if
        end if
     end if
 
@@ -402,17 +428,17 @@ contains
     dtnew = min(dtnew, dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD))
     !print *, "first post ", dtnew
 
-    !! dt < dx / (ndim * advection_coeff)
-    !maxA = maxval(abs(A1))
-    !if (number_of_species >= 2) then
-    !    maxA = max(maxA, maxval(abs(A2)))
-    !end if
-    !if (number_of_species >= 3) then
-    !    maxA = max(maxA, maxval(abs(A3)))
-    !end if
-    !!print *, "dtadvecpar = ", dtadvecpar, "ndim = ", ndim, "maxA = ", maxA, "dt_pot = ", dtadvecpar / (ndim * maxA)
-    !dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
-    !!print *, "post second ", dtnew
+    ! dt < dx / (ndim * advection_coeff)
+    maxA = maxval(abs(A1))
+    if (number_of_species >= 2) then
+        maxA = max(maxA, maxval(abs(A2)))
+    end if
+    if (number_of_species >= 3) then
+        maxA = max(maxA, maxval(abs(A3)))
+    end if
+    !print *, "dtadvecpar = ", dtadvecpar, "ndim = ", ndim, "maxA = ", maxA, "dt_pot = ", dtadvecpar / (ndim * maxA)
+    dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
+    !print *, "post second ", dtnew
 
     ! Estimate time step for reactions
     select case (equation_type)
@@ -467,12 +493,22 @@ contains
     double precision, intent(in)    :: x(ixI^S, 1:^ND)
     double precision, intent(out)   :: f(ixI^S, nwflux)
 
-    f(ixO^S, u_) = (A1(idim)/adv_pow) * w(ixO^S,u_)**adv_pow
-    if (number_of_species >=2) then
-       f(ixO^S, v_) = (A2(idim)/adv_pow) * w(ixO^S,v_)**adv_pow
-    end if
-    if (number_of_species >=3) then
-       f(ixO^S, w_) = (A3(idim)/adv_pow) * w(ixO^S,w_)**adv_pow
+    if(advection_linear) then
+       f(ixO^S, u_) = A1(idim)*w(ixO^S,u_)
+       if (number_of_species >=2) then
+          f(ixO^S, v_) = A2(idim)*w(ixO^S,v_)
+       end if
+       if (number_of_species >=3) then
+          f(ixO^S, w_) = A3(idim)*w(ixO^S,w_)
+       end if
+    else
+       f(ixO^S, u_) = half*A1(idim)*w(ixO^S,u_)**2
+       if (number_of_species >=2) then
+          f(ixO^S, v_) = half*A2(idim)*w(ixO^S,v_)**2
+       end if
+       if (number_of_species >=3) then
+          f(ixO^S, w_) = half*A3(idim)*w(ixO^S,w_)**2
+       end if
     end if
 
   end subroutine ard_get_flux
