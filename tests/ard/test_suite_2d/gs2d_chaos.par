@@ -1,6 +1,4 @@
 !================================================
-! When flux_scheme is set to source, NaN occurs.
-! The cause of this is unclear as of yet
 !================================================
 
 !setup.pl -d=2

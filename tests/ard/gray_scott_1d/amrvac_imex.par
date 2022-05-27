@@ -4,7 +4,7 @@
 !=====================================================
 
  &filelist
-        base_filename='output/testimex_'
+        base_filename='output/imex_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /

@@ -4,7 +4,7 @@
 !=====================================================
 
  &filelist
-        base_filename='output/testsplitard_'
+        base_filename='output/split_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /

@@ -4,7 +4,7 @@
 !=====================================================
 
  &filelist
-        base_filename='output/testexplard_'
+        base_filename='output/expl_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
         type_endian=1

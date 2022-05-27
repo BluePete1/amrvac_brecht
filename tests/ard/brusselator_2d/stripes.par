@@ -4,7 +4,7 @@
 !=====================================================
 
 &filelist
-    base_filename = 'output/BR2D_stripes_test2_'
+    base_filename = 'output/BR2D_stripes_'
     convert_type = 'vtuBCCmpi'
     autoconvert = T
 /
