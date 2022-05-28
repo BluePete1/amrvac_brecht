@@ -27,7 +27,9 @@ contains
     l2 = xprobmax2 - xprobmin2
 
     w(ix^S,u_) = sb_alpha + sb_beta + 1d-3 * &
-         exp(-100d0 * ((x(ix^S, 1) - x1)**2 + (x(ix^S, 2) - x2)**2))
+         exp(-100d0 * ((x(ix^S, 1) - x1)**2 + (x(ix^S, 2) - x2)**2)) &
+         + 1d-3 * exp(-100d0 * ((x(ix^S, 1) - 2*x1)**2 + (x(ix^S, 2) - 0.5*x2)**2)) &
+         + 1d-3 * exp(-100d0 * ((x(ix^S, 1) - 2*x1)**2 + (x(ix^S, 2) - 1.5*x2)**2))
     w(ix^S,v_) = sb_beta / (sb_alpha + sb_beta)**2
 
   end subroutine schnakenberg_init

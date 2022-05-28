@@ -1,9 +1,9 @@
 !=====================================================
-! Reaction Diffusion
+! Afvection Reaction Diffusion
 !=====================================================
 
  &filelist
-        base_filename='output/schnakenberg_imex_'
+        base_filename='output/schnakenberg_imex_ard_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /
@@ -52,7 +52,10 @@
  /
 
  &ard_list
+       equation_name = "schnakenberg"
        D1 = 0.05d0
        D2 = 1.0d0
-       equation_name = "schnakenberg"
+       adv_pow = 1
+       A1 = 1.0d-1 1.0d-1
+       A2 = 1.0d-1 1.0d-1
  /
