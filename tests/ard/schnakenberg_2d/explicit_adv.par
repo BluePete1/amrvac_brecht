@@ -1,9 +1,9 @@
 !=====================================================
-! Afvection Reaction Diffusion
+! Reaction Diffusion
 !=====================================================
 
  &filelist
-        base_filename='output/schnakenberg_imex_ard_'
+        base_filename='output/schnakenberg_explicit_adv_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /
@@ -19,17 +19,17 @@
  /
 
  &methodlist
-        time_stepper = 'twostep'
-        time_integrator = 'IMEX_Trapezoidal'
+        time_stepper = 'fourstep'
+        time_integrator = 'rk4'
         flux_scheme = 20*'tvdlf'
         !limiter= 20*'mp5'
  /
 
  &boundlist
-        typeboundary_min1=2*'periodic'
-        typeboundary_max1=2*'periodic'
-        typeboundary_min2=2*'periodic'
-        typeboundary_max2=2*'periodic'
+        typeboundary_min1=2*'cont'
+        typeboundary_max1=2*'cont'
+        typeboundary_min2=2*'cont'
+        typeboundary_max2=2*'cont'
  /
 
  &meshlist
@@ -48,14 +48,14 @@
        courantpar=0.8d0
        typecourant='minimum'
  &paramlist
-       dtpar=2.0d-3
+       dtpar=1.0d-6
  /
 
  &ard_list
-       equation_name = "schnakenberg"
        D1 = 0.05d0
        D2 = 1.0d0
        adv_pow = 1
        A1 = 1.0d-1 1.0d-1
        A2 = 1.0d-1 1.0d-1
+       equation_name = "schnakenberg"
  /

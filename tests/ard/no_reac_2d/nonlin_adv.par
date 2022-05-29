@@ -3,7 +3,7 @@
 !=====================================================
 
 &filelist
-    base_filename = 'output/nonlin_adv_'
+    base_filename = 'output/nonlin_adv2_'
     convert_type='vtuBCCmpi'
     autoconvert=T
 /
@@ -34,11 +34,13 @@
 /
 
 &meshlist
-    refine_max_level = 4
+    refine_max_level = 1
     refine_threshold = 20*0.1d0
 
     domain_nx1 = 60
+    domain_nx2 = 60
     block_nx1  = 10
+    block_nx2  = 10
 
     xprobmin1 = 0.0d0
     xprobmax1 = 5.0d0

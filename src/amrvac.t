@@ -210,6 +210,7 @@ contains
        time_before_advance=MPI_WTIME()
        ! set time step
        call setdt()
+       !print *, "dt = ", dt
 
        ! Optionally call a user method that can modify the grid variables at the
        ! beginning of a time step

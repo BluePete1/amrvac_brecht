@@ -22,7 +22,7 @@
         time_stepper = 'twostep'
         time_integrator = 'IMEX_Trapezoidal'
         flux_scheme = 20*'tvdlf'
-        limiter= 20*'mp5'
+        !limiter= 20*'mp5'
  /
 
  &boundlist

@@ -3,7 +3,7 @@
 !=====================================================
 
  &filelist
-        base_filename='rd_output/schnakenberg_explicit_'
+        base_filename='output/schnakenberg_explicit_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /
@@ -19,9 +19,10 @@
  /
 
  &methodlist
-        time_stepper = 'threestep'
-        flux_scheme = 20*'source'
-        limiter= 20*'mp5'
+        time_stepper = 'fourstep'
+        time_integrator = 'rk4'
+        flux_scheme = 20*'tvdlf'
+        !limiter= 20*'mp5'
  /
 
  &boundlist
@@ -47,7 +48,7 @@
        courantpar=0.8d0
        typecourant='minimum'
  &paramlist
-       dtpar=3.0d-6
+       dtpar=1.0d-6
  /
 
  &ard_list
