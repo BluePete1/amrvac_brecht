@@ -21,7 +21,7 @@
 
 &methodlist
     flux_scheme     = 20*'tvdlf'
-    time_stepper    = 'threestep'
+    time_stepper    = 'onestep'
     !time_integrator = 'IMEX_Euler'
     !limiter         = 20*'cada3'
 /

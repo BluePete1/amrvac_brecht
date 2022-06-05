@@ -245,9 +245,24 @@ contains
     if (use_imex_scheme) then
        use_multigrid = .true.
        select case(number_of_species)
-       case(1); species_list = [u_]
-       case(2); species_list = [u_, v_]
-       case(3); species_list = [u_, v_, w_]
+          case(1)
+             species_list = [u_]
+             if (D1 == 0.0d0) then
+                write(*, *) "Diffusion coefficient cannot be zero in IMEX scheme"
+                call mpistop("Zero diffusion in IMEX scheme")
+             end if
+          case(2)
+             species_list = [u_, v_]
+             if ((D1 == 0.0d0) .or. (D2 == 0.0d0)) then
+                write(*, *) "Diffusion coefficient cannot be zero in IMEX scheme"
+                call mpistop("Zero diffusion in IMEX scheme")
+             end if
+          case(3)
+             species_list = [u_, v_, w_]
+             if ((D1 == 0.0d0) .or. (D2 == 0.0d0) .or. (D3 == 0.0d0)) then
+                write(*, *) "Diffusion coefficient cannot be zero in IMEX scheme"
+                call mpistop("Zero diffusion in IMEX scheme")
+             end if
        end select
 
        do i = 1, number_of_species
@@ -333,6 +348,8 @@ contains
     if (number_of_species >= 3) then
        cmax(ixO^S)=max(cmax(ixO^S), abs(A3(idim) * w(ixO^S,w_)**(adv_pow-1)))
     end if
+    !print *, "A1 = ", A1(idim), " and A2 = ", A2(idim)
+    !print *, "cmax = ", cmax(ixO^S)
 
   end subroutine ard_get_cmax
 
@@ -468,12 +485,21 @@ contains
     double precision, intent(out)   :: f(ixI^S, nwflux)
 
     f(ixO^S, u_) = (A1(idim)/adv_pow) * w(ixO^S,u_)**adv_pow
+    !print *, "u_ done: ", A1(idim)/adv_pow
     if (number_of_species >=2) then
        f(ixO^S, v_) = (A2(idim)/adv_pow) * w(ixO^S,v_)**adv_pow
+       !print *, "v_ done: ", A2(idim)/adv_pow
     end if
     if (number_of_species >=3) then
        f(ixO^S, w_) = (A3(idim)/adv_pow) * w(ixO^S,w_)**adv_pow
+       !print *, "w_ done: ", A3(idim)/adv_pow
     end if
+
+    !print *, "A1 = ", A1(idim), " and A2 = ", A2(idim)
+    !print *, "flux_u = ", f(ixO^S, u_)
+    !print *, "flux_v = ", f(ixO^S, v_)
+
+
 
   end subroutine ard_get_flux
 

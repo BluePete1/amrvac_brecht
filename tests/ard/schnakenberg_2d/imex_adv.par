@@ -3,7 +3,7 @@
 !=====================================================
 
  &filelist
-        base_filename='output/schnakenberg_imex_ard_'
+        base_filename='output/schnakenberg_imex_adv_test_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /
@@ -19,8 +19,9 @@
  /
 
  &methodlist
-        time_stepper = 'twostep'
-        time_integrator = 'IMEX_Trapezoidal'
+        time_stepper = 'threestep'
+        time_integrator = 'IMEX_ARS3'
+        !time_integrator = 'IMEX_Trapezoidal'
         flux_scheme = 20*'tvdlf'
         !limiter= 20*'mp5'
  /
@@ -48,7 +49,7 @@
        courantpar=0.8d0
        typecourant='minimum'
  &paramlist
-       dtpar=2.0d-3
+       dtpar=1.0d-2
  /
 
  &ard_list

@@ -10,28 +10,15 @@ contains
   subroutine usr_init()
      integer :: i
 
-     print *, "test 1"
      call set_coordinate_system('Cartesian')
-     print *, "test 2"
      call ard_activate()
-     print *, "test 3"
      
      usr_init_one_grid => lg_init     
-     print *, "test 4"
      
      if (iprob == 2) then
-        print *, "test 5"
         usr_special_bc    => lg_bound
         do i = 1, 2*ndim
            ard_mg_bc(1, i)%boundary_cond => lg_bound_mg
-        end do
-     end if
-     
-     if (iprob == 3) then
-        print *, "test 6"
-        usr_special_bc    => lg_bound_adv
-        do i = 1, 2*ndim
-           ard_mg_bc(1, i)%boundary_cond => lg_bound_mg_adv
         end do
      end if
   end subroutine usr_init
@@ -130,7 +117,7 @@ contains
      real(dp), intent(in) :: x, t
      real(dp)             :: val
 
-     val = ( 1.0_dp / (1.0_dp + dexp((x+5.0_dp/dsqrt(6.0_dp)*t)/dsqrt(6.0_dp))) )**2  
+     val = ( 1.0_dp / (1.0_dp + dexp(x/dsqrt(6.0_dp))) )**2  
   end function lg_solution
 
 end module mod_usr

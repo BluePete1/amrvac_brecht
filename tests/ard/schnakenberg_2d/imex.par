@@ -48,7 +48,7 @@
        courantpar=0.8d0
        typecourant='minimum'
  &paramlist
-       dtpar=2.0d-3
+       dtpar=1.0d-3
  /
 
  &ard_list

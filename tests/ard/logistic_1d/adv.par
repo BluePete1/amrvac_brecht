@@ -39,7 +39,7 @@
     refine_max_level = 1
     domain_nx1 = 512
     block_nx1  = 16
-    iprob      = 3
+    iprob      = 2
     xprobmin1  = -10.0d0
     xprobmax1  =  10.0d0
 /
@@ -52,5 +52,5 @@
     equation_name = "logistic"
     D1        = 1.0d0
     lg_lambda = 1.0d0
-    A1        = -2.014d0
+    A1        = -2.0412d0
 /

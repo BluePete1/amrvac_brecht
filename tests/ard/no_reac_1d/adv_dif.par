@@ -30,7 +30,7 @@
 /
 
 &meshlist
-    refine_max_level = 1
+    refine_max_level = 2
 
     domain_nx1 = 128
     block_nx1  = 16
@@ -46,6 +46,7 @@
 
 &ard_list
     equation_name = "no_reac"
+    adv_pow = 2
     D1   = 1.0d0
     A1   = 2.0d0
 /

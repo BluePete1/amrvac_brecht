@@ -26,10 +26,10 @@
  /
 
  &boundlist
-        typeboundary_min1=2*'cont'
-        typeboundary_max1=2*'cont'
-        typeboundary_min2=2*'cont'
-        typeboundary_max2=2*'cont'
+        typeboundary_min1=2*'periodic'
+        typeboundary_max1=2*'periodic'
+        typeboundary_min2=2*'periodic'
+        typeboundary_max2=2*'periodic'
  /
 
  &meshlist
@@ -48,7 +48,7 @@
        courantpar=0.8d0
        typecourant='minimum'
  &paramlist
-       dtpar=1.0d-6
+       !dtpar=1.0d-1
  /
 
  &ard_list

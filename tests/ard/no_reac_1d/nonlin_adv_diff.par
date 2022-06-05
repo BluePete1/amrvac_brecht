@@ -21,8 +21,8 @@
 
 &methodlist
     flux_scheme     = 20*'tvdlf'
-    time_stepper    = 'threestep'
-    !time_integrator = 'Forward_Euler'
+    time_stepper    = 'onestep'
+    time_integrator = 'IMEX_Euler'
     !limiter         = 20*'weno7'
 /
 
@@ -54,5 +54,5 @@
     equation_name = "no_reac"
     adv_pow = 2
     D1   = 1.0d-1
-    A1   = 2.0d0 1.0d0
+    A1   = 2.0d0
 /

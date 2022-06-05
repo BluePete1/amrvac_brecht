@@ -52,5 +52,4 @@
     equation_name = "logistic"
     D1        = 1.0d0
     lg_lambda = 1.0d0
-    A1        = -2.0412d0
 /
