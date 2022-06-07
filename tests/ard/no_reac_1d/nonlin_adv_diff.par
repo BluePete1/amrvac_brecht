@@ -32,7 +32,7 @@
 /
 
 &meshlist
-    refine_max_level = 4
+    refine_max_level = 1
     refine_threshold = 20*0.1d0
 
     domain_nx1 = 1024

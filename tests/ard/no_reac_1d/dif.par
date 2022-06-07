@@ -48,5 +48,5 @@
 
 &ard_list
     equation_name = "no_reac"
-    D1   = 1.0d0
+    D1 = 1.0d0
 /

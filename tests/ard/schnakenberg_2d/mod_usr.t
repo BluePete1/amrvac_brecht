@@ -26,11 +26,25 @@ contains
     l1 = xprobmax1 - xprobmin1
     l2 = xprobmax2 - xprobmin2
 
-    w(ix^S,u_) = sb_alpha + sb_beta + 1d-3 * &
-         exp(-100d0 * ((x(ix^S, 1) - x1)**2 + (x(ix^S, 2) - x2)**2)) &
-         + 1d-3 * exp(-100d0 * ((x(ix^S, 1) - 2*x1)**2 + (x(ix^S, 2) - 0.5*x2)**2)) &
-         + 1d-3 * exp(-100d0 * ((x(ix^S, 1) - 2*x1)**2 + (x(ix^S, 2) - 1.5*x2)**2))
+    w(ix^S,u_) = sb_alpha + sb_beta
     w(ix^S,v_) = sb_beta / (sb_alpha + sb_beta)**2
+
+    select case (iprob)
+    case (1)
+       w(ix^S,u_) = w(ix^S,u_) + 1d-3 * &
+            exp(-100d0 * ((x(ix^S, 1) - x1)**2 + (x(ix^S, 2) - x2)**2)) &
+            + 1d-3 * exp(-100d0 * ((x(ix^S, 1) - 2*x1)**2 + (x(ix^S, 2) - 0.5*x2)**2)) &
+            + 1d-3 * exp(-100d0 * ((x(ix^S, 1) - 2*x1)**2 + (x(ix^S, 2) - 1.5*x2)**2))
+       w(ix^S,v_) = sb_beta / (sb_alpha + sb_beta)**2
+    case (2)
+       where (abs(x(ix^S, 1) - xprobmin1 - 0.5d0 * l1) < 0.1d0 * l1 .and. &
+            abs(x(ix^S, 2) - xprobmin2 - 0.5d0 * l2) < 0.1d0 * l2)
+          w(ix^S,u_) = w(ix^S,u_) + 1.0d-1
+          w(ix^S,v_) = w(ix^S,v_) - 1.0d-1
+       endwhere
+    case default
+       call mpistop("Unknown iprob")
+    end select
 
   end subroutine schnakenberg_init
 
