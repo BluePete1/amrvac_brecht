@@ -3,26 +3,26 @@
 !=====================================================
 
  &filelist
-        base_filename='output/limit_test3_'
+        base_filename = 'output/limit_kaka_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /
 
  &savelist
-        dtsave_log=0.1d0
-        dtsave_dat=0.1d0
+        dtsave_log=5.0d-2
+        dtsave_dat=5.0d-2
         itsave(1,2)=0
  /
 
  &stoplist
-        time_max=2.0d0
+        time_max=1.0d0
  /
 
  &methodlist
         time_stepper = 'twostep'
         time_integrator = 'IMEX_Trapezoidal'
         flux_scheme = 20*'tvdlf'
-        limiter= 20*'weno7'
+        limiter= 20*'minmod'
  /
 
  &boundlist
@@ -39,7 +39,7 @@
         xprobmax1=1.0d0
  /
  &paramlist
-       dtpar=1.0d-4
+       !dtpar=1.0d-4
  /
 
  &ard_list
@@ -50,6 +50,6 @@
        D1 = 0.05d0
        D2 = 1.0d0
        adv_pow = 2
-       A1 = 3.0d0
-       A2 = 3.0d0
+       A1 = 5.0d0
+       A2 = -5.0d0
  /
