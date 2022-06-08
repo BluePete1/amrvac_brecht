@@ -1,0 +1,258 @@
+time: 300
+nodes: 1
+procs: 36
+account string: default_project
+queue: q1h
+========================================================================
+ -----------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
+ |         __  __ ____ ___        _    __  __ ______     ___    ____         |
+ |        |  \/  |  _ \_ _|      / \  |  \/  |  _ \ \   / / \  / ___|        |
+ |        | |\/| | |_) | |_____ / _ \ | |\/| | |_) \ \ / / _ \| |            |
+ |        | |  | |  __/| |_____/ ___ \| |  | |  _ < \ V / ___ \ |___         |
+ |        |_|  |_|_|  |___|   /_/   \_\_|  |_|_| \_\ \_/_/   \_\____|        |
+ -----------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
+ Reading nonlin.par
+ Reading amr2.par
+ 
+ Output type | tsavestart |  dtsave   | ditsave | itsave(1) | tsave(1)
+         log | 0.000E+00  | 0.100E-03 | ******  | ******    | *********
+      normal | 0.000E+00  | 0.100E-03 | ******  |      0    | *********
+       slice | 0.000E+00  | ********* | ******  | ******    | *********
+   collapsed | 0.000E+00  | ********* | ******  | ******    | *********
+    analysis | 0.000E+00  | ********* | ******  | ******    | *********
+ 
+ Warning: coordinate system is not specified!
+ call set_coordinate_system in usr_init in mod_usr.t
+ Now use Cartesian coordinate
+         Domain size (cells): 64 64 
+                Level one dx: 0.156E-01 0.156E-01 
+           Refine estimation: Lohner's scheme
+           restart_from_file:  undefined
+                  converting: F
+
+ -------------------------------------------------------------------------------
+ Startup phase took :             2.341 sec
+ -------------------------------------------------------------------------------
+ Start integrating, print status every  3.00E+01 seconds
+   #        it        time          dt  wc-time(s)
+   #         0  0.0000E+00  5.0000E-07  1.5535E-05
+ -------------------------------------------------------------------------------
+ Saving visual data. Coordinate directions and variable names are:
+           1 X               
+           2 Y               
+           3 u               u               
+           4 v               v               
+ time =   0.0000000000000000     
+ -------------------------------------------------------------------------------
+ Total timeloop took        :       11.053 sec
+ Time spent on AMR          :        4.637 sec
+                  Percentage:        41.95 %
+ Time spent on IO in loop   :        0.288 sec
+                  Percentage:         2.60 %
+ Time spent on ghost cells  :        0.298 sec
+                  Percentage:         2.70 %
+ Time spent on computing    :        5.830 sec
+                  Percentage:        52.75 %
+ Cells updated / proc / sec :    7.205E+04
+ Total time spent on IO     :        0.289 sec
+ Total timeintegration took :       11.054 sec
+   #      2000   1.000E-03   3.708E-17   1.105E+01
+name                          min(s)          max(s)
+mg total V-cycle            1.152216        1.157764
+mg total FMG cycle          3.278521        4.130065
+mg smoother                 0.019572        0.739198
+mg smoother g.c.            0.096255        1.160942
+mg coarse                   0.021057        0.081600
+mg correct                  0.048871        3.627685
+mg update coarse            0.068551        1.169964
+ -------------------------------------------------------------------------------
+ Finished AMRVAC in :            13.407 sec
+ -------------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
+ |         __  __ ____ ___        _    __  __ ______     ___    ____         |
+ |        |  \/  |  _ \_ _|      / \  |  \/  |  _ \ \   / / \  / ___|        |
+ |        | |\/| | |_) | |_____ / _ \ | |\/| | |_) \ \ / / _ \| |            |
+ |        | |  | |  __/| |_____/ ___ \| |  | |  _ < \ V / ___ \ |___         |
+ |        |_|  |_|_|  |___|   /_/   \_\_|  |_|_| \_\ \_/_/   \_\____|        |
+ -----------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
+ Reading nonlin.par
+ Reading amr2.par
+ 
+ Output type | tsavestart |  dtsave   | ditsave | itsave(1) | tsave(1)
+         log | 0.000E+00  | 0.100E-03 | ******  | ******    | *********
+      normal | 0.000E+00  | 0.100E-03 | ******  |      0    | *********
+       slice | 0.000E+00  | ********* | ******  | ******    | *********
+   collapsed | 0.000E+00  | ********* | ******  | ******    | *********
+    analysis | 0.000E+00  | ********* | ******  | ******    | *********
+ 
+ Warning: coordinate system is not specified!
+ call set_coordinate_system in usr_init in mod_usr.t
+ Now use Cartesian coordinate
+         Domain size (cells): 64 64 
+                Level one dx: 0.156E-01 0.156E-01 
+           Refine estimation: Lohner's scheme
+           restart_from_file:  undefined
+                  converting: F
+
+ -------------------------------------------------------------------------------
+ Startup phase took :             0.153 sec
+ -------------------------------------------------------------------------------
+ Start integrating, print status every  3.00E+01 seconds
+   #        it        time          dt  wc-time(s)
+   #         0  0.0000E+00  5.0000E-07  6.3543E-05
+ -------------------------------------------------------------------------------
+ Saving visual data. Coordinate directions and variable names are:
+           1 X               
+           2 Y               
+           3 u               u               
+           4 v               v               
+ time =   0.0000000000000000     
+ -------------------------------------------------------------------------------
+ Total timeloop took        :       11.319 sec
+ Time spent on AMR          :        4.740 sec
+                  Percentage:        41.88 %
+ Time spent on IO in loop   :        0.336 sec
+                  Percentage:         2.96 %
+ Time spent on ghost cells  :        0.408 sec
+                  Percentage:         3.60 %
+ Time spent on computing    :        5.836 sec
+                  Percentage:        51.56 %
+ Cells updated / proc / sec :    7.037E+04
+ Total time spent on IO     :        0.336 sec
+ Total timeintegration took :       11.320 sec
+   #      2000   1.000E-03   3.708E-17   1.132E+01
+name                          min(s)          max(s)
+mg total V-cycle            1.199719        1.202759
+mg total FMG cycle          3.327485        4.188425
+mg smoother                 0.019739        0.739158
+mg smoother g.c.            0.099179        1.212418
+mg coarse                   0.021099        0.081389
+mg correct                  0.050386        3.699668
+mg update coarse            0.068977        1.169753
+ -------------------------------------------------------------------------------
+ Finished AMRVAC in :            11.473 sec
+ -------------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
+ |         __  __ ____ ___        _    __  __ ______     ___    ____         |
+ |        |  \/  |  _ \_ _|      / \  |  \/  |  _ \ \   / / \  / ___|        |
+ |        | |\/| | |_) | |_____ / _ \ | |\/| | |_) \ \ / / _ \| |            |
+ |        | |  | |  __/| |_____/ ___ \| |  | |  _ < \ V / ___ \ |___         |
+ |        |_|  |_|_|  |___|   /_/   \_\_|  |_|_| \_\ \_/_/   \_\____|        |
+ -----------------------------------------------------------------------------
+ -----------------------------------------------------------------------------
+ Reading nonlin.par
+ Reading amr2.par
+ 
+ Output type | tsavestart |  dtsave   | ditsave | itsave(1) | tsave(1)
+         log | 0.000E+00  | 0.100E-03 | ******  | ******    | *********
+      normal | 0.000E+00  | 0.100E-03 | ******  |      0    | *********
+       slice | 0.000E+00  | ********* | ******  | ******    | *********
+   collapsed | 0.000E+00  | ********* | ******  | ******    | *********
+    analysis | 0.000E+00  | ********* | ******  | ******    | *********
+ 
+ Warning: coordinate system is not specified!
+ call set_coordinate_system in usr_init in mod_usr.t
+ Now use Cartesian coordinate
+         Domain size (cells): 64 64 
+                Level one dx: 0.156E-01 0.156E-01 
+           Refine estimation: Lohner's scheme
+           restart_from_file:  undefined
+                  converting: F
+
+ -------------------------------------------------------------------------------
+ Startup phase took :             0.159 sec
+ -------------------------------------------------------------------------------
+ Start integrating, print status every  3.00E+01 seconds
+   #        it        time          dt  wc-time(s)
+   #         0  0.0000E+00  5.0000E-07  1.5679E-05
+ -------------------------------------------------------------------------------
+ Saving visual data. Coordinate directions and variable names are:
+           1 X               
+           2 Y               
+           3 u               u               
+           4 v               v               
+ time =   0.0000000000000000     
+ -------------------------------------------------------------------------------
+ Total timeloop took        :       12.425 sec
+ Time spent on AMR          :        5.010 sec
+                  Percentage:        40.32 %
+ Time spent on IO in loop   :        0.368 sec
+                  Percentage:         2.96 %
+ Time spent on ghost cells  :        0.733 sec
+                  Percentage:         5.90 %
+ Time spent on computing    :        6.314 sec
+                  Percentage:        50.81 %
+ Cells updated / proc / sec :    6.410E+04
+ Total time spent on IO     :        0.369 sec
+ Total timeintegration took :       12.426 sec
+   #      2000   1.000E-03   3.708E-17   1.242E+01
+name                          min(s)          max(s)
+mg total V-cycle            1.261751        1.266936
+mg total FMG cycle          3.681898        4.858730
+mg smoother                 0.019653        0.753244
+mg smoother g.c.            0.098070        1.311175
+mg coarse                   0.021104        0.082375
+mg correct                  0.051078        4.032417
+mg update coarse            0.068430        1.331037
+ -------------------------------------------------------------------------------
+ Finished AMRVAC in :            12.586 sec
+ -------------------------------------------------------------------------------
+========================================================================
+Epilogue args:
+Date: Tue Jun  7 16:09:02 CEST 2022
+Allocated nodes:
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+r25i13n09
+Job ID: 51172991.tier2-p-moab-2.tier2.hpc.kuleuven.be
+User ID: vsc34609
+Group ID: vsc34609
+Job Name: amr2.pbs
+Session ID: 33709
+Resource List: nodes=1:ppn=36,walltime=00:05:00,neednodes=1:ppn=36,pmem=5gb
+Resources Used: cput=00:22:28,vmem=22924244kb,walltime=00:00:48,mem=4004996kb,energy_used=0
+Queue Name: q1h
+Account String: default_project
+-------------------------------------------------------------------------
+time: 48
+nodes: 1
+procs: 36
+account: default_project
