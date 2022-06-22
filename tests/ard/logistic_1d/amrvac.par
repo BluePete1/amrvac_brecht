@@ -6,7 +6,7 @@
 !============================================================
 
 &filelist
-    base_filename = 'data/LG1D_toy_'
+    base_filename = 'data/LG1D_toy_adv_'
     convert_type  = 'vtuBCCmpi'
     autoconvert   = T
 /
@@ -18,7 +18,7 @@
 /
 
 &stoplist
-    time_max = 25.0d0
+    time_max = 50.0d0
 /
 
 &methodlist
@@ -49,4 +49,6 @@
     equation_name = "logistic"
     D1        = 1.0d0
     lg_lambda = 1.0d0
+    adv_pow   = 2
+    A1        = -2.0d0
 /

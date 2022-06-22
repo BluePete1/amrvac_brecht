@@ -1,6 +1,6 @@
 !=====================================================
 ! Project : Reaction Diffusion in 1D
-!
+! Added nonlinear advection
 !=====================================================
 
  &filelist
@@ -22,7 +22,7 @@
  &methodlist
         time_stepper = 'onestep'
         time_integrator = 'IMEX_Euler'
-        flux_scheme = 20*'source'
+        flux_scheme = 20*'tvdlf'
  /
 
  &boundlist
@@ -52,4 +52,7 @@
        D2 = 1.0d-5
        gs_F=0.029d0
        gs_k=0.057d0
+       adv_pow = 2
+       A1 = 3.0d-5
+       A2 = -3.0d-5
  /

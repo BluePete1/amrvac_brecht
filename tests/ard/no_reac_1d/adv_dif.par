@@ -46,7 +46,7 @@
 
 &ard_list
     equation_name = "no_reac"
-    adv_pow = 2
+    adv_pow = 1
     D1   = 1.0d0
     A1   = 2.0d0
 /

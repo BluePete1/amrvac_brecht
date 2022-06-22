@@ -3,7 +3,7 @@
 !=====================================================
 
  &filelist
-        base_filename = 'post2_output/nonlin_testje_'
+        base_filename = 'output/nonlin_'
     	convert_type = 'vtuBCCmpi'
         autoconvert = T
  /
@@ -53,10 +53,6 @@
 
  &ard_list
        equation_name = "schnakenberg"
-       !sb_alpha = 1.01d-1
-       !sb_beta = 1.01d0
-       !sb_kappa = 60.466
-       !D1 = 0.05d0
        D1 = 0.1d0
        D2 = 1.0d0
        adv_pow = 2

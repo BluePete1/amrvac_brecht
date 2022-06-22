@@ -1,9 +1,9 @@
 !=====================================================
-! Reaction Diffusion
+! Advection Reaction Diffusion
 !=====================================================
 
  &filelist
-        base_filename='output/schnakenberg_explicit_adv_'
+        base_filename='output/schnakenberg_explicit_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /

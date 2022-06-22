@@ -34,19 +34,12 @@ subroutine setdt()
         call phys_get_aux(.true.,ps(igrid)%w,ps(igrid)%x,ixG^LL,ixM^LL,'setdt')
       end if
 
-      !print *, "first ", dtnew
-
       call getdt_courant(ps(igrid)%w,ixG^LL,ixM^LL,qdtnew,dx^D,ps(igrid)%x,&
            cmax_mype,a2max_mype)
       dtnew=min(dtnew,qdtnew)
 
-      !print *, "second ", dtnew
-
       call phys_get_dt(ps(igrid)%w,ixG^LL,ixM^LL,qdtnew,dx^D,ps(igrid)%x)
-      !print *, "Between second and third, dtnew = ", dtnew, "and qdtnew = ", qdtnew, " en ", min(dtnew,qdtnew)
       dtnew=min(dtnew,qdtnew)
-
-      !print *, "third ", dtnew
 
       if (associated(usr_get_dt)) then
          call usr_get_dt(ps(igrid)%w,ixG^LL,ixM^LL,qdtnew,dx^D,ps(igrid)%x)
@@ -55,7 +48,6 @@ subroutine setdt()
       dtmin_mype     = min(dtmin_mype,dtnew)
     end do
     !$OMP END PARALLEL DO
-    !print *, "final ", dtnew
   else
      dtmin_mype=dtpar
   end if

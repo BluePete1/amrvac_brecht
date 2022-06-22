@@ -3,7 +3,7 @@
 !=====================================================
 
 &filelist
-    base_filename = 'output/nonlin_adv_diff00_'
+    base_filename = 'output/nonlin_adv_'
     convert_type='vtuBCCmpi'
     autoconvert=T
 /
@@ -22,8 +22,7 @@
 &methodlist
     flux_scheme     = 20*'tvdlf'
     time_stepper    = 'threestep'
-    !time_integrator = 'IMEX_Euler'
-    !limiter         = 20*'woodward'
+    !limiter         = 20*'weno7'
 /
 
 &boundlist
@@ -53,6 +52,6 @@
 &ard_list
     equation_name = "no_reac"
     adv_pow = 2
-    D1   = 1.0d-1
+    D1   = 0.0d0
     A1   = 2.0d0
 /

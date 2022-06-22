@@ -1,4 +1,4 @@
-!> Module containing all routines for advection-reaction-diffusion
+!> Module activating the advection-reaction-diffusion equation module
 module mod_ard
   use mod_ard_phys
   use mod_amrvac

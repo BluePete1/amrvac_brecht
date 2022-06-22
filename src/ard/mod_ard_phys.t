@@ -1,13 +1,18 @@
-!> Advection-reaction-diffusion module (physics routines)
+!> Module containing the physics routines for advection-reaction-diffusion equations
 !>
-!> Advection term is of the form (A/adv_pow) * u^adv_pow
-!>
-!> Multiple advection-reaction-diffusion systems are included: the Gray-Scott model,
-!> the Schnakenberg model, the Brusselator model, the diffusive logistic equation,
+!> This module can be seen as an extension of the reaction-diffusion (rd) module
+!> and includes the same reaction systems and more: the Gray-Scott model, the
+!> Schnakenberg model, the Brusselator model, the diffusive logistic equation,
 !> an analytical testcase from "Numerical solution of time-dependent advection-
 !> diffusion-reaction equations" by Hundsdorfer & Verwer, the Oregonator model,
-!> the extended Brusselator model, and the diffusive Lorenz system. See the
-!> documentation of the reaction-diffusion module for more information.
+!> the extended Brusselator model, the diffusive Lorenz system and the advection-
+!> diffusion equation. See the documentation of the advection-reaction-diffusion
+!> module for more information.
+!>
+!> An advection term can be aplied to these systems of the form: 
+!> (A1/adv_pow) * u^(adv_pow)   (for the first unknown)
+!> (A2/adv_pow) * v^(adv_pow)   (for the second unknown, if applicable)
+!> (A3/adv_pow) * w^(adv_pow)   (for the third unknown, if applicable)
 !>
 !> IMEX methods are also supported. The implicit system is solved by a
 !> multigrid solver coupled into MPI-AMRVAC.
@@ -18,6 +23,7 @@ module mod_ard_phys
   implicit none
   private
 
+  !> Indices of the unknowns
   integer, protected, public :: u_ = 1
   integer, protected, public :: v_ = 2 !< For 2 or more equations
   integer, protected, public :: w_ = 3 !< For 3 or more equations
@@ -28,23 +34,19 @@ module mod_ard_phys
   !> Parameter with which to multiply the reaction timestep restriction
   double precision, public, protected :: dtreacpar = 0.5d0
 
-  !> Parameter with which to multiply the advection timestep restriction
-  double precision, public, protected :: dtadvecpar = 1.0d0
-
-
   !> Name of the system to be solved
   character(len=20), public, protected :: equation_name = "gray-scott"
   integer            :: number_of_species  = 2
   integer            :: equation_type      = 1
-  integer, parameter :: eq_gray_scott      = 1
-  integer, parameter :: eq_schnakenberg    = 2
-  integer, parameter :: eq_brusselator     = 3
-  integer, parameter :: eq_logistic        = 4
+  integer, parameter :: eq_gray_scott      = 1 ! Gray-Scott model
+  integer, parameter :: eq_schnakenberg    = 2 ! Schnakenberg model
+  integer, parameter :: eq_brusselator     = 3 ! Brusselator model
+  integer, parameter :: eq_logistic        = 4 ! Logistic equation
   integer, parameter :: eq_analyt_hunds    = 5
   integer, parameter :: eq_belousov_fn     = 6 ! Field-Noyes model, or Oregonator
-  integer, parameter :: eq_ext_brusselator = 7
-  integer, parameter :: eq_lorenz          = 8
-  integer, parameter :: eq_no_reac         = 9
+  integer, parameter :: eq_ext_brusselator = 7 ! Extended Brusselator
+  integer, parameter :: eq_lorenz          = 8 ! Lorenz system
+  integer, parameter :: eq_no_reac         = 9 ! Advection-diffusion equation
 
   !> Diffusion coefficient for first species (u)
   double precision, public, protected :: D1 = 0.05d0
@@ -53,21 +55,19 @@ module mod_ard_phys
   !> Diffusion coefficient for third species (w) (if applicable)
   double precision, public, protected :: D3 = 1.0d0
 
-  !> Power of u in the advection term
+  !> Power of the unknown in the advection term (1 for linear)
   integer, public, protected :: adv_pow = 1
 
   !> Advection coefficients for first species (u)
   double precision, public, protected :: A1(^ND) = 0.0d0
-  !> Advection coefficients for second species (v)
+  !> Advection coefficients for second species (v) (if applicable)
   double precision, public, protected :: A2(^ND) = 0.0d0
-  !> Advection coefficients for third species (w)
+  !> Advection coefficients for third species (w) (if applicable)
   double precision, public, protected :: A3(^ND) = 0.0d0
 
-  !> Parameter for Schnakenberg model
+  !> Parameters for Schnakenberg model
   double precision, public, protected :: sb_alpha = 0.1305d0
-  !> Parameter for Schnakenberg model
   double precision, public, protected :: sb_beta  = 0.7695d0
-  !> Parameter for Schnakenberg model
   double precision, public, protected :: sb_kappa = 100.0d0
 
   !> Feed rate for Gray-Scott model
@@ -75,25 +75,19 @@ module mod_ard_phys
   !> Kill rate for Gray-Scott model
   double precision, public, protected :: gs_k = 0.063d0
 
-  !> Parameter for Brusselator model
+  !> Parameters for Brusselator model
   double precision, public, protected :: br_A = 4.5d0
-  !> Parameter for Brusselator model
   double precision, public, protected :: br_B = 8.0d0
-  !> Parameter for extended Brusselator model
   double precision, public, protected :: br_C = 1.0d0
-  !> Parameter for extended Brusselator model
   double precision, public, protected :: br_D = 1.0d0
 
   !> Parameter for logistic model (Fisher / KPP equation)
   double precision, public, protected :: lg_lambda = 1.0d0
 
-  !> Parameter for the Field-Noyes model of the Belousov-Zhabotinsky reaction
+  !> Parameters for the Field-Noyes model of the Belousov-Zhabotinsky reaction
   double precision, public, protected :: bzfn_epsilon = 1.0d0
-  !> Parameter for the Field-Noyes model of the Belousov-Zhabotinsky reaction
   double precision, public, protected :: bzfn_delta   = 1.0d0
-  !> Parameter for the Field-Noyes model of the Belousov-Zhabotinsky reaction
   double precision, public, protected :: bzfn_lambda  = 1.0d0
-  !> Parameter for the Field-Noyes model of the Belousov-Zhabotinsky reaction
   double precision, public, protected :: bzfn_mu      = 1.0d0
 
   !> Parameter for Lorenz system (Rayleigh number)
@@ -111,10 +105,10 @@ module mod_ard_phys
 
   ! Public methods
   public :: ard_phys_init
-  !public :: ard_get_v
 
 contains
 
+  !> Read this module's parameters from a file
   subroutine ard_params_read(files)
     use mod_global_parameters, only: unitpar
     character(len=*), intent(in) :: files(:)
@@ -131,6 +125,7 @@ contains
 111    close(unitpar)
     end do
 
+    !> Set the equation type and number of species
     select case (equation_name)
     case ("gray-scott")
        equation_type = eq_gray_scott
@@ -187,10 +182,10 @@ contains
 
     physics_type = "ard"
     phys_energy  = .false.
+    ! Whether diagonal ghost cells are required for the physics
     phys_req_diagonal = .false.
     use_particles = ard_particles
 
-    ! Use the first variable as a density
     u_ = var_set_fluxvar("u", "u")
     if (number_of_species >= 2) then
         v_ = var_set_fluxvar("v", "v")
@@ -217,7 +212,6 @@ contains
     phys_to_primitive      => ard_to_primitive
     phys_add_source_geom   => ard_add_source_geom
     phys_add_source        => ard_add_source
-    !phys_get_v_idim        => ard_get_v
     phys_get_dt            => ard_get_dt
     phys_write_info        => ard_write_info
     phys_check_params      => ard_check_params
@@ -235,12 +229,6 @@ contains
   subroutine ard_check_params
     use mod_global_parameters
     integer :: n, i, iw, species_list(number_of_species)
-
-    ! Not sure what to do with this, so left it temporarily but commented out
-    ! if (any(flux_method /= fs_source)) then
-    !    ! there are no fluxes, only source terms in reaction-diffusion
-    !    call mpistop("mod_ard requires flux_scheme = source")
-    ! end if
 
     if (use_imex_scheme) then
        use_multigrid = .true.
@@ -321,35 +309,19 @@ contains
     ! Do nothing (primitive and conservative are equal for ard module)
   end subroutine ard_to_primitive
 
-  ! subroutine ard_get_v(w, x, ixI^L, ixO^L, idim, v)
-  !   use mod_global_parameters
-  !   integer, intent(in)           :: ixI^L, ixO^L, idim
-  !   double precision, intent(in)  :: w(ixI^S, nw), x(ixI^S, 1:^ND)
-  !   double precision, intent(out) :: v(ixI^S)
-  ! 
-  !   v(ixO^S)=w(ixO^S,rho_)**(adv_pow-1)
-  ! 
-  ! end subroutine ard_get_v
-
   subroutine ard_get_cmax(w, x, ixI^L, ixO^L, idim, cmax)
     use mod_global_parameters
     integer, intent(in)                       :: ixI^L, ixO^L, idim
     double precision, intent(in)              :: w(ixI^S, nw), x(ixI^S, 1:^ND)
     double precision, intent(inout)           :: cmax(ixI^S)
 
-    !call ard_get_v(w, x, ixI^L, ixO^L, idim, cmax)
-
-    !cmax(ixO^S) = abs(cmax(ixO^S)) 
-
-    cmax(ixO^S)=abs(A1(idim) * w(ixO^S,u_)**(adv_pow-1))
+    cmax(ixO^S) = abs(A1(idim) * w(ixO^S,u_)**(adv_pow-1))
     if (number_of_species >= 2) then
-       cmax(ixO^S)=max(cmax(ixO^S), abs(A2(idim) * w(ixO^S,v_)**(adv_pow-1)))
+       cmax(ixO^S) = max(cmax(ixO^S), abs(A2(idim) * w(ixO^S,v_)**(adv_pow-1)))
     end if
     if (number_of_species >= 3) then
-       cmax(ixO^S)=max(cmax(ixO^S), abs(A3(idim) * w(ixO^S,w_)**(adv_pow-1)))
+       cmax(ixO^S) = max(cmax(ixO^S), abs(A3(idim) * w(ixO^S,w_)**(adv_pow-1)))
     end if
-    !print *, "A1 = ", A1(idim), " and A2 = ", A2(idim)
-    !print *, "cmax = ", cmax(ixO^S)
 
   end subroutine ard_get_cmax
 
@@ -365,10 +337,9 @@ contains
 
     double precision :: wmean(ixI^S,nw)
 
-    ! since get_v can depend on w, the first argument should be some average over the
-    ! left and right state
+    ! Since the advection coefficient can depend on unknowns,
+    ! some average over the left and right state should be taken
     wmean(ixO^S,1:nwflux)=0.5d0*(wLC(ixO^S,1:nwflux)+wRC(ixO^S,1:nwflux))
-    !call ard_get_v(wmean, x, ixI^L, ixO^L, idim, cmax)
 
     if (present(cmin)) then
        cmin(ixO^S) = min(A1(idim) * wmean(ixO^S,u_)**(adv_pow-1), zero)
@@ -384,10 +355,10 @@ contains
     else
        cmax(ixO^S) = maxval(abs(A1(idim) * wmean(ixO^S,u_)**(adv_pow-1)))
        if (number_of_species >=2) then
-          cmax(ixO^S)=max(cmax(ixO^S), maxval(abs(A2(idim) * wmean(ixO^S,v_)**(adv_pow-1))))
+          cmax(ixO^S) = max(cmax(ixO^S), maxval(abs(A2(idim) * wmean(ixO^S,v_)**(adv_pow-1))))
        end if
        if (number_of_species >=3) then
-          cmax(ixO^S)=max(cmax(ixO^S), maxval(abs(A3(idim) * wmean(ixO^S,w_)**(adv_pow-1))))
+          cmax(ixO^S) = max(cmax(ixO^S), maxval(abs(A3(idim) * wmean(ixO^S,w_)**(adv_pow-1))))
        end if
     end if
 
@@ -414,30 +385,13 @@ contains
     if (number_of_species >= 3) then
         maxD = max(maxD, D3)
     end if
-    !print *, "first pre ", dtnew
-    !dtnew = dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD)
     dtnew = min(dtnew, dtdiffpar * minval([ dx^D ])**2 / (2 * ndim * maxD))
-    !print *, "first post ", dtnew
-
-    !! dt < dx / (ndim * advection_coeff)
-    !maxA = maxval(abs(A1))
-    !if (number_of_species >= 2) then
-    !    maxA = max(maxA, maxval(abs(A2)))
-    !end if
-    !if (number_of_species >= 3) then
-    !    maxA = max(maxA, maxval(abs(A3)))
-    !end if
-    !!print *, "dtadvecpar = ", dtadvecpar, "ndim = ", ndim, "maxA = ", maxA, "dt_pot = ", dtadvecpar / (ndim * maxA)
-    !dtnew = min(dtnew, dtadvecpar / (ndim * maxA))
-    !!print *, "post second ", dtnew
 
     ! Estimate time step for reactions
     select case (equation_type)
     case (eq_gray_scott)
        maxrate = max(maxval(w(ixO^S, v_))**2 + gs_F, &
             maxval(w(ixO^S, v_) * w(ixO^S, u_)) - gs_F - gs_k)
-    !   print *, "testje: ", maxrate, " en ", maxval(w(ixO^S, v_))**2 + gs_F, &
-    !        " en ", maxval(w(ixO^S, v_) * w(ixO^S, u_)) - gs_F - gs_k
     case (eq_schnakenberg)
        maxrate = max(maxval(abs(w(ixO^S, v_) * w(ixO^S, u_) - 1)), &
             maxval(w(ixO^S, u_))**2)
@@ -468,14 +422,11 @@ contains
        call mpistop("Unknown equation type")
     end select
 
-    !print *, "nieuwke hier: ", dtnew, " en ", dtreacpar, " en ", maxrate
-    !print *, "Samen: ", dtreacpar / maxrate, " en dan ", min(dtnew, dtreacpar / maxrate)
     dtnew = min(dtnew, dtreacpar / maxrate)
-    !print *, "third ", dtnew
 
   end subroutine ard_get_dt
 
-  ! There is nothing to add to the transport flux in the transport equation
+  ! Add the flux from the advection term
   subroutine ard_get_flux(wC, w, x, ixI^L, ixO^L, idim, f)
     use mod_global_parameters
     integer, intent(in)             :: ixI^L, ixO^L, idim
@@ -485,27 +436,18 @@ contains
     double precision, intent(out)   :: f(ixI^S, nwflux)
 
     f(ixO^S, u_) = (A1(idim)/adv_pow) * w(ixO^S,u_)**adv_pow
-    !print *, "u_ done: ", A1(idim)/adv_pow
     if (number_of_species >=2) then
        f(ixO^S, v_) = (A2(idim)/adv_pow) * w(ixO^S,v_)**adv_pow
-       !print *, "v_ done: ", A2(idim)/adv_pow
     end if
     if (number_of_species >=3) then
        f(ixO^S, w_) = (A3(idim)/adv_pow) * w(ixO^S,w_)**adv_pow
-       !print *, "w_ done: ", A3(idim)/adv_pow
     end if
-
-    !print *, "A1 = ", A1(idim), " and A2 = ", A2(idim)
-    !print *, "flux_u = ", f(ixO^S, u_)
-    !print *, "flux_v = ", f(ixO^S, v_)
-
-
 
   end subroutine ard_get_flux
 
   subroutine ard_add_source_geom(qdt, ixI^L, ixO^L, wCT, w, x)
 
-    ! Add geometrical source terms to w
+    ! Add geometrical source terms
     ! There are no geometrical source terms 
 
     use mod_global_parameters

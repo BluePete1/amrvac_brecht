@@ -1,6 +1,6 @@
 !=====================================================
 ! Turing stripe pattern formation in the Brusselator
-! model.
+! model with added advective term.
 !=====================================================
 
 &filelist
@@ -22,8 +22,6 @@
 &methodlist
     flux_scheme     = 20*'tvdlf'
     time_stepper    = 'twostep'
-    !time_integrator = 'IMEX_Euler'
-    !limiter         = 20*'minmod'
 /
 
 &boundlist
@@ -46,7 +44,7 @@
     xprobmin2 = 0.0d0
     xprobmax2 = 64.0d0
 
-    iprob = 3
+    iprob = 1
 /
 
 &paramlist
@@ -58,8 +56,8 @@
     equation_name = "brusselator"
     D1   = 1.0d0
     D2   = 8.0d0
-    !A1   = 1.0d0 0.0d0
-    !A2   = 1.0d0 0.0d0
+    A1   = 1.0d0 0.0d0
+    A2   = 1.0d0 0.0d0
     br_A = 4.5d0
     br_B = 8.0d0
 /

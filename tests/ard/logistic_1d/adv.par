@@ -3,8 +3,9 @@
 ! equation, as found in ablowitz1971explicit.
 ! ( DOI: 10.1016/S0092-8240(79)80020-8 )
 ! 
-! Added linear advection (A1=-2) results in
-! nearly static situation
+! Added linear advection (A1=-20412) cancels
+! movement of the shock wave and results in
+! (nearly) static situation.
 !=============================================
 
 &filelist

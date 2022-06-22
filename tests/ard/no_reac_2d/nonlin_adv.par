@@ -3,7 +3,7 @@
 !=====================================================
 
 &filelist
-    base_filename = 'output/nonlin_adv2_'
+    base_filename = 'output/nonlin_adv_'
     convert_type='vtuBCCmpi'
     autoconvert=T
 /
@@ -58,5 +58,5 @@
     equation_name = "no_reac"
     adv_pow = 2
     D1   = 0.0d0
-    A1   = 1.0d0 1.0d0
+    A1   = 2.0d0 2.0d0
 /

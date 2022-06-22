@@ -1,3 +1,10 @@
+! ==================================================
+! Analytical solution to a reaction-diffusion
+! problem from Hundsdorfer and Verwer. This is
+! taken from the rd module to show that the ard
+! module can still handle reaction-diffusion cases.
+! ==================================================
+
  &filelist
         base_filename = 'analytic'
         typefilelog   = 'special'

@@ -3,7 +3,7 @@
 !=====================================================
 
  &filelist
-        base_filename='output/schnakenberg_imex_adv_test_'
+        base_filename='output/schnakenberg_imex_'
     	convert_type='vtuBCCmpi'
         autoconvert=T
  /

@@ -1,5 +1,5 @@
 !=====================================================
-! 3D Reaction Diffusion
+! 3D Advection Reaction Diffusion
 !=====================================================
 
  &filelist
@@ -21,16 +21,16 @@
  &methodlist
         time_stepper = 'twostep'
         time_integrator = 'IMEX_Trapezoidal'
-        flux_scheme = 20*'source'
+        flux_scheme = 20*'tvdlf'
  /
 
  &boundlist
-        typeboundary_min1=2*'cont'
-        typeboundary_max1=2*'cont'
-        typeboundary_min2=2*'cont'
-        typeboundary_max2=2*'cont'
-        typeboundary_min3=2*'cont'
-        typeboundary_max3=2*'cont'
+        typeboundary_min1=2*'periodic'
+        typeboundary_max1=2*'periodic'
+        typeboundary_min2=2*'periodic'
+        typeboundary_max2=2*'periodic'
+        typeboundary_min3=2*'periodic'
+        typeboundary_max3=2*'periodic'
  /
 
  &meshlist
@@ -56,8 +56,12 @@
        dtpar=1.0d-3
  /
 
- &rd_list
+ &ard_list
        D1 = 0.05d0
        D2 = 1.0d0
        equation_name = "schnakenberg"
+       adv_pow = 1
+       A1 = 1.0d-1 1.0d-1 1.0d-1
+       A2 = 1.0d-1 1.0d-1 1.0d-1
+       A3 = 1.0d-1 1.0d-1 1.0d-1
  /

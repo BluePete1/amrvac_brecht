@@ -47,6 +47,7 @@ contains
        dist2 = (x(ix^S, 1) - x1)**2
        w(ix^S,u_) = w(ix^S,u_) - 0.5d0 * exp(-100 * dist2/l1**2)
     case (4)
+        ! One cosine peak
         w(ix^S,u_) = 0.0d0
         where (abs(x(ix^S, 1) - x1) < 2 * atan(1.0d0))
           w(ix^S,u_) = 1.0d0 * cos(x(ix^S, 1)-x1)

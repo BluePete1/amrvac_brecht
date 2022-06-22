@@ -1,6 +1,8 @@
 !=============================================
 ! Spirals in the extended Brusselator model
 ! (takes a while for them to pop up though)
+! Added nonlinear advection results in more
+! complex patterns.
 !=============================================
 
 &filelist
@@ -57,4 +59,8 @@
     br_B = 11.39d0
     br_C = 1.0d0
     br_D = 1.0d0
+    adv_pow = 2
+    A1   = 1.0d-1 0.0d0
+    A2   = 1.0d-1 0.0d0
+    A3   = 1.0d-1 0.0d0
 /
