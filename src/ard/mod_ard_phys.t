@@ -10,9 +10,9 @@
 !> module for more information.
 !>
 !> An advection term can be aplied to these systems of the form: 
-!> (A1/adv_pow) * u^(adv_pow)   (for the first unknown)
-!> (A2/adv_pow) * v^(adv_pow)   (for the second unknown, if applicable)
-!> (A3/adv_pow) * w^(adv_pow)   (for the third unknown, if applicable)
+!> nabla( (A1/adv_pow) * u^(adv_pow) )   (for the first unknown)
+!> nabla( (A2/adv_pow) * v^(adv_pow) )   (for the second unknown, if applicable)
+!> nabla( (A3/adv_pow) * w^(adv_pow) )   (for the third unknown, if applicable)
 !>
 !> IMEX methods are also supported. The implicit system is solved by a
 !> multigrid solver coupled into MPI-AMRVAC.
